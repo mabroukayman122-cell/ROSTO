@@ -1,0 +1,1258 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101114"><title>ROSTO FIRE | POS</title>
+<style>
+:root{--bg:#0a0c0f;--panel:#13161b;--panel2:#1b1f26;--line:#2a3039;--red:#e11d2e;--gold:#f5c542;--muted:#9aa3af;--green:#22c07a;--blue:#38bdf8}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(900px 380px at 100% -5%,#3a0d13 0,transparent 60%),var(--bg);color:#f8f7f3;font-family:"Segoe UI",Tahoma,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.top{position:sticky;top:0;z-index:8;background:rgba(9,10,12,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);box-shadow:0 2px 0 var(--red);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.brand b{font-size:20px;font-weight:800;letter-spacing:1.5px}.brand small{display:block;color:var(--gold);margin-top:2px;font-size:11px}
+.topright{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pill{font-size:11px;border:1px solid var(--line);background:#14181e;border-radius:30px;padding:6px 10px;color:#cbd0d7}
+.tabs{display:flex;gap:6px;padding:10px 12px;max-width:1500px;margin:auto;overflow:auto}
+.tab{white-space:nowrap;border:1px solid var(--line);background:var(--panel);color:#eee;border-radius:10px;padding:9px 13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+.tab.active{background:linear-gradient(135deg,#b3101e,#e11d2e);border-color:#f0505c;box-shadow:0 4px 14px #e11d2e44}
+.badge-cnt{background:var(--gold);color:#1a1300;font-weight:900;font-size:11px;padding:1px 7px;border-radius:99px}
+.view{display:none;max-width:1500px;margin:auto;padding:0 12px 24px}.view.active{display:block}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 365px;gap:14px}
+.panel{background:linear-gradient(160deg,#171a20,#111419);border:1px solid var(--line);border-radius:16px;min-width:0;box-shadow:0 8px 24px #0006}
+.menu{padding:14px}
+.heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.heading h2{margin:0;font-size:20px}.heading p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.search{width:230px;max-width:100%;padding:10px;border-radius:11px;background:#0b0d10;border:1px solid var(--line);color:white}
+.cats{display:flex;gap:7px;overflow:auto;padding:3px 0 12px}
+.cat{white-space:nowrap;border:1px solid var(--line);background:var(--panel2);color:#eee;border-radius:999px;padding:8px 14px;font-weight:600;font-size:13px}
+.cat.active{background:var(--red);border-color:var(--red)}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px}
+.item{position:relative;background:linear-gradient(160deg,#1d2128,#14171c);border:1px solid var(--line);border-radius:13px;padding:10px;display:flex;flex-direction:column;gap:8px;transition:.15s}
+.item b{font-size:13px;font-weight:700;line-height:1.45}
+.item[data-q]:not([data-q=""]){border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.item[data-q]:not([data-q=""])::after{content:attr(data-q);position:absolute;top:-8px;left:-8px;min-width:24px;height:24px;padding:0 6px;border-radius:12px;background:var(--gold);color:#201800;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+.item-actions{display:flex;flex-wrap:wrap;gap:5px}
+.pick{flex:1;min-width:62px;border:1px solid #79632d;background:#342b19;color:#ffe18a;border-radius:8px;padding:8px 5px;font-size:11px;font-weight:600}
+.pick.single{background:#8f111b;border-color:#c33;color:white}
+.cart{display:flex;flex-direction:column;position:sticky;top:72px;max-height:calc(100vh - 88px);overflow-y:auto}
+.carthead{padding:13px 15px;background:linear-gradient(110deg,#8d0c18,#e11d2e);display:flex;justify-content:space-between;align-items:center;border-radius:15px 15px 0 0}
+.carthead h3{margin:0}
+.cartbody{padding:10px 12px;flex:1;overflow:auto;min-height:130px}
+.empty{text-align:center;color:#989fa8;padding:35px 8px}
+.rowitem{background:#171b21;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:8px;display:grid;grid-template-columns:34px 1fr auto;gap:5px 8px;align-items:center}
+.rowitem .qn{background:var(--gold);color:#201800;border-radius:7px;text-align:center;padding:4px 0;font-size:16px}
+.rowitem .nm{font-weight:700;font-size:13px}
+.rowitem .pr{color:var(--gold);font-size:13px}
+.qty{grid-column:2/4;display:flex;justify-content:flex-end;gap:6px}
+.qty button{width:28px;height:28px;border:1px solid #555e68;background:#303640;color:#fff;border-radius:7px}
+.foot{padding:12px;border-top:1px solid var(--line);display:grid;gap:8px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field{display:grid;gap:4px;font-size:12px;color:#bdc3cb}
+.field input,.field select,.field textarea{width:100%;background:#0b0d10;color:white;border:1px solid var(--line);border-radius:9px;padding:9px}
+.primary,.secondary,.danger,.success{border-radius:10px;padding:11px;font-weight:bold}
+.primary{border:0;background:linear-gradient(135deg,#b3101e,#e11d2e);color:white;box-shadow:0 4px 14px #e11d2e44}
+.secondary{border:1px solid #59616c;background:#282d34;color:white}
+.danger{border:1px solid #84323a;background:#401c20;color:#ffc5c9}
+.success{border:0;background:linear-gradient(135deg,#157a52,#22c07a);color:white}
+.primary:disabled{opacity:.4}
+.sum{display:flex;justify-content:space-between;align-items:center;border-top:1px dashed #555;padding-top:8px}
+.sum strong{font-size:24px;color:var(--gold)}
+.cardgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+.metric{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:14px}
+.metric span{display:block;color:#adb5bf;font-size:12px}
+.metric strong{display:block;color:var(--gold);font-size:22px;margin-top:8px}
+.section{padding:15px;margin-bottom:13px}
+.section h2,.section h3{margin:0 0 11px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.toolbar input,.toolbar select{background:#0c0e11;border:1px solid #48505a;color:white;border-radius:8px;padding:9px}
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:580px}
+th,td{text-align:right;padding:10px;border-bottom:1px solid #353b44;font-size:12px}
+th{background:#272c33;color:#f4d36b;position:sticky;top:0}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.col-box{background:#12151a;border:1px solid var(--line);border-radius:15px;padding:13px;min-height:58vh}
+.col-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:11px;border-bottom:2px solid var(--line)}
+.col-head.prep{border-color:var(--gold)}.col-head.deliv{border-color:var(--green)}
+.col-head h3{margin:0;font-size:17px;display:flex;align-items:center;gap:8px}
+.ord-card{background:linear-gradient(155deg,#1d2129,#15181e);border:1px solid #383f4a;border-radius:12px;padding:12px;margin-bottom:10px;box-shadow:0 4px 12px #0005}
+.ord-card.prep{border-right:4px solid var(--gold)}.ord-card.deliv{border-right:4px solid var(--green)}
+.ord-top{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:7px;border-bottom:1px dashed #363d47;flex-wrap:wrap}
+.ord-no{background:var(--gold);color:#1e1600;font-weight:900;padding:3px 9px;border-radius:7px;font-size:14px}
+.timer-pill{font-family:monospace;font-size:13px;font-weight:800;padding:3px 9px;border-radius:7px;background:#0b0d10;border:1px solid #444c58;color:#7dd3fc}
+.timer-pill.warn{border-color:#e11d2e;color:#fca5a5;background:#2a1014}
+.ord-type{font-size:11px;padding:3px 8px;border-radius:6px;background:#282e37;color:#e5e9f0;font-weight:700}
+.ord-items{font-size:13px;line-height:1.65;margin:7px 0;color:#f1f3f5;background:#0e1014;padding:8px 10px;border-radius:8px;border:1px solid #262b33}
+.ord-meta{font-size:12px;color:#b8c0cb;display:grid;gap:4px;margin-bottom:8px}
+.ord-addr{background:#231f16;border:1px solid #695424;color:#ffe28a;padding:6px 9px;border-radius:7px;font-size:12px;font-weight:700}
+.ord-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:8px;border-top:1px solid #2f353f;flex-wrap:wrap}
+.ord-total{font-size:17px;font-weight:900;color:var(--gold)}
+.ord-btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ord-btns button{padding:8px 11px;font-size:12px;border-radius:8px}
+.drv-select{background:#0c0e11;border:1px solid #4e5663;color:#fff;border-radius:7px;padding:7px 8px;font-size:12px}
+.toast{position:fixed;bottom:16px;left:50%;transform:translate(-50%,20px);opacity:0;background:#167c4f;padding:11px 17px;border-radius:9px;z-index:50;transition:.2s;font-weight:700}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.modalbg{display:none;position:fixed;inset:0;background:#000c;z-index:40;align-items:center;justify-content:center;padding:14px}
+.modalbg.show{display:flex}
+.modal{width:min(480px,100%);max-height:90vh;overflow:auto;background:#191d22;border:1px solid #59616b;border-radius:15px;padding:18px}
+.modal h3{margin:0 0 12px}.modalactions{display:flex;gap:8px;margin-top:13px}.modalactions>*{flex:1}
+.modal input,.modal select,.modal textarea{width:100%;padding:10px;background:#0c0e11;border:1px solid #555e68;color:white;border-radius:8px}
+.footnote{font-size:11px;color:#9ca5b0;line-height:1.7}
+@media(max-width:920px){.layout{grid-template-columns:1fr}.board{grid-template-columns:1fr}.cart{position:static;max-height:none}.cardgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.items{grid-template-columns:repeat(2,minmax(0,1fr))}.fields{grid-template-columns:1fr 1fr}}
+
+#printArea{display:none}
+@media print{
+@page{size:80mm auto;margin:0}
+html,body{background:#fff!important}
+body>*:not(#printArea){display:none!important}
+#printArea{display:block;direction:rtl;font-family:Tahoma,Arial,sans-serif;color:#000;width:76mm;margin:0 auto}
+.tk{padding:3mm 2mm;page-break-after:always;font-size:13px;line-height:1.55;color:#000}
+.tk hr{border:0;border-top:1px dashed #000;margin:5px 0}
+.tk table{width:100%;min-width:0;border-collapse:collapse}
+.tk td{border:0;padding:2px 0;font-size:13px;color:#000;text-align:right}
+.tk td:last-child{text-align:left}
+.tc{text-align:center}.big{font-size:18px;font-weight:900}
+.rw{display:flex;justify-content:space-between;gap:8px}
+.kit{font-size:20px;font-weight:900;margin:5px 0}
+.note{font-size:15px;font-weight:700}
+}
+
+.pv{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.pvp{text-align:center}.pvp .cap{font-size:12px;color:#ffe18a;margin-bottom:5px;font-weight:700}
+.pv .tk{background:#fff;color:#000;width:290px;padding:12px 10px;text-align:right;font-size:13px;line-height:1.55;box-shadow:0 4px 14px #000a;border-radius:3px}
+.pv .tk hr{border:0;border-top:1px dashed #000;margin:5px 0}
+.pv .tk table{width:100%;min-width:0;border-collapse:collapse}
+.pv .tk td{border:0;padding:2px 0;font-size:13px;color:#000;text-align:right}
+.pv .tk td:last-child{text-align:left}
+.pv .tc{text-align:center}.pv .big{font-size:18px;font-weight:900}
+.pv .rw{display:flex;justify-content:space-between;gap:8px}
+.pv .kit{font-size:20px;font-weight:900;margin:5px 0}.pv .note{font-size:15px;font-weight:700}
+</style></head><body>
+
+<header class="top">
+  <div class="brand"><b>ROSTO FIRE</b><small>روستو منور بأهله · نظام إدارة المطعم</small></div>
+  <div class="topright">
+    <span class="pill" id="persistPill">🛡️ التخزين: جاري التفعيل...</span>
+    <span class="pill" id="shiftStatus">الشفت: مفتوح</span>
+    <button class="secondary" id="topDriversBtn" style="padding:6px 11px;font-size:12px;border-color:var(--blue);color:#7dd3fc">🛵 السائقين</button>
+    <button class="secondary" id="topMenuEditBtn" style="padding:6px 11px;font-size:12px;border-color:var(--gold);color:#ffe18a">🍔 تعديل المنيو والعروض</button>
+    <button class="secondary" id="resetDemoBtn" style="padding:6px 10px;font-size:11px">🔄 إعادة ضبط التجربة</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-view="pos">🧾 الكاشير</button>
+  <button class="tab" data-view="tracker">🛵 متابعة الطلبات <span class="badge-cnt" id="activeOrdersBadge">0</span></button>
+  <button class="tab" data-view="menuMgr">🍔 المنيو والعروض</button>
+  <button class="tab" data-view="zonesMgr">📍 مناطق التوصيل</button>
+  <button class="tab" data-view="driversMgr">🛵 إدارة السائقين</button>
+  <button class="tab" data-view="shifts">🔒 الشفتات والإغلاق</button>
+  <button class="tab" data-view="reports">📊 التقارير</button>
+  <button class="tab" data-view="customers">👥 العملاء</button>
+</nav>
+
+<main>
+  <section class="view active" id="view-pos">
+    <div class="layout">
+      <section class="panel menu">
+        <div class="heading">
+          <div><h2>شاشة الكاشير</h2><p>اختار القسم ثم اضغط على الصنف</p></div>
+          <input id="search" class="search" placeholder="ابحث عن صنف...">
+        </div>
+        <nav class="cats" id="cats"></nav>
+        <div class="items" id="items"></div>
+      </section>
+
+      <aside class="panel cart">
+        <div class="carthead">
+          <div><h3>الطلب الحالي</h3><small id="count">0 قطعة</small></div>
+          <button class="secondary" id="clear" style="padding:7px 10px;font-size:12px">مسح</button>
+        </div>
+        <div class="cartbody" id="cart"><div class="empty">السلة فارغة</div></div>
+        <div class="foot">
+          <div class="fields">
+            <label class="field">طريقة الاستلام<select id="type"><option>تيك أواي</option><option>استلام من الفرع</option><option>دليفري</option></select></label>
+            <label class="field">طريقة الدفع<select id="payment"><option>كاش</option><option>فيزا</option><option>محفظة إلكترونية</option></select></label>
+          </div>
+          <div class="fields">
+            <label class="field">اسم العميل<input id="customer" placeholder="اختياري"></label>
+            <label class="field">رقم التليفون<input id="phone" inputmode="numeric" placeholder="01xxxxxxxxx"></label>
+          </div>
+          <div id="zoneBox">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:4px">
+              <label class="field" style="flex:1;margin:0">البلد / المنطقة (سعر ثابت)</label>
+            </div>
+            <select id="posZone" style="width:100%;background:#0b0d10;color:white;border:1px solid var(--line);border-radius:9px;padding:9px"><option value="">— اختر البلد لتحديد السعر —</option></select>
+            <div id="countryChips" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px"></div>
+          </div>
+          <label class="field" id="addrBox">تفاصيل العنوان (أنت تكتبها بالتفصيل)<input id="address" placeholder="الشارع / رقم العمارة / الدور / علامة مميزة"></label>
+          <label class="field" id="drvBox">السائق<select id="driver"></select></label>
+          <div class="fields">
+            <label class="field">ملاحظات<input id="notes" placeholder="بدون بصل..."></label>
+            <label class="field">خصم (ج.م)<input id="discount" type="number" min="0" placeholder="0"></label>
+          </div>
+          <div class="sum" id="feeRow"><span>رسوم التوصيل</span><b id="feeVal">20 ج.م</b></div>
+          <div class="sum"><span>إجمالي الطلب</span><strong id="total">0 ج.م</strong></div>
+          <button class="primary" id="finish" disabled>🖨 تأكيد البيع وطباعة فورية</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="view" id="view-tracker">
+    <div class="panel section">
+      <div class="heading" style="margin-bottom:0">
+        <div><h2>متابعة الطلبات والتحصيل (مباشر)</h2><p>طلبات الدليفري والاستلام تنزل في "تحت التجهيز" · لما الدليفري ياخده انقله "تحت التوصيل" · ولما تستلم الفلوس شيّكه</p></div>
+        <span class="pill" id="pendingCashPill">نقدية مع الدليفري: 0 ج.م</span>
+      </div>
+    </div>
+    <div class="board">
+      <div class="col-box">
+        <div class="col-head prep"><h3>🍳 تحت التجهيز <span class="badge-cnt" id="prepCount">0</span></h3><small style="color:var(--muted)">عداد وقت التجهيز</small></div>
+        <div id="prepList"></div>
+      </div>
+      <div class="col-box">
+        <div class="col-head deliv"><h3>🛵 تحت التوصيل <span class="badge-cnt" style="background:var(--green);color:#fff" id="delivCount">0</span></h3><small style="color:var(--muted)">عداد وقت التوصيل</small></div>
+        <div id="delivList"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-menuMgr">
+    <div class="panel section">
+      <div class="heading">
+        <div><h2>إدارة المنيو والأقسام والعروض</h2><p>ادخل على أي قسم لتعديل أسعاره، أو أنشئ قسم جديد (مثل: الكريب أو عروض الافتتاح) وأضف مشتقاته</p></div>
+        <div class="toolbar" style="margin:0">
+          <button class="primary" id="addCatMultiBtn">➕ قسم جديد بمشتقاته (مثل الكريب)</button>
+          <button class="success" id="addMenuItemBtn">➕ إضافة صنف / عرض</button>
+          <button class="secondary" id="resetMenuBtn">استعادة المنيو الأصلي</button>
+        </div>
+      </div>
+      <nav class="cats" id="mgrCats"></nav>
+      <div class="toolbar">
+        <input id="menuMgrSearch" placeholder="ابحث في المنيو..." style="width:240px">
+        <button class="secondary" id="addToCurrentCatBtn" style="display:none">➕ إضافة صنف داخل هذا القسم</button>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>القسم</th><th>اسم الصنف / العرض</th><th>الأسعار والأحجام</th><th>إجراءات</th></tr></thead>
+          <tbody id="menuMgrRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-zonesMgr">
+    <div class="panel section">
+      <div class="heading">
+        <div><h2>البلاد ومناطق التوصيل الثابتة</h2><p>أضف أي بلد أو قرية أو منطقة وحدد سعر توصيلها الثابت، وأول ما تختارها في الكاشير السعر ينزل على الفاتورة فوراً</p></div>
+        <button class="primary" id="addZoneBtn">➕ إضافة بلد / منطقة جديدة</button>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>اسم البلد / المنطقة</th><th>سعر التوصيل الثابت</th><th>إجراءات</th></tr></thead>
+          <tbody id="zonesRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-driversMgr">
+    <div class="panel section">
+      <div class="heading">
+        <div><h2>إدارة السائقين (الدليفري)</h2><p>أضف أو عدّل أو احذف أسماء السائقين اللي شغالين معاك لتحديدهم في الكاشير ومتابعة الطلبات</p></div>
+        <button class="primary" id="addDriverBtn">➕ إضافة سائق جديد</button>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>اسم السائق</th><th>الكود</th><th>إجراءات</th></tr></thead>
+          <tbody id="driversRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-shifts">
+    <div class="panel section">
+      <h2>الشفتات وإغلاق الوردية وحماية البيانات</h2>
+      <div class="cardgrid">
+        <div class="metric"><span>حالة الشفت</span><strong id="shiftState">مفتوح</strong></div>
+        <div class="metric"><span>إجمالي فلوس الشفت</span><strong id="shiftSales">🔒 مخفي</strong></div>
+        <div class="metric"><span>عدد الفواتير</span><strong id="shiftOrders">0</strong></div>
+        <div class="metric"><span>القطع المباعة</span><strong id="shiftPieces">0</strong></div>
+      </div>
+      <div class="toolbar">
+        <button class="secondary" id="unlockShiftCash">🔓 إظهار إجمالي فلوس الشفت</button>
+        <button class="primary" id="openShift">فتح شفت جديد</button>
+        <button class="danger" id="closeShift">🔒 إغلاق الشفت</button>
+      </div>
+      <div class="toolbar" style="border-top:1px solid var(--line);padding-top:12px;margin-top:12px">
+        <button class="secondary" id="protectStorageBtn">🛡️ تفعيل حماية التخزين الدائم</button>
+        <button class="secondary" id="exportDataBtn">💾 حفظ نسخة احتياطية (منيو + مناطق + مبيعات)</button>
+        <label class="secondary" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">📂 استرجاع نسخة<input id="importDataInp" type="file" accept=".json" style="display:none"></label>
+      </div>
+      <div class="toolbar" style="border-top:1px solid var(--line);padding-top:12px;margin-top:12px">
+        <label style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="optReceipt"> طباعة فاتورة العميل</label>
+        <label style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="optKitchen"> طباعة تذاكر المطبخ (تذكرة لكل قسم)</label>
+        <button class="secondary" id="testPrintBtn">🖨 طباعة تجريبية (معاينة)</button>
+      </div>
+      <div class="toolbar" style="border-top:1px solid var(--line);padding-top:12px;margin-top:12px">
+        <button class="secondary" id="pickFolderBtn">📁 اختيار فولدر الحفظ (Rosto)</button>
+        <button class="secondary" id="saveFolderNowBtn">💾 حفظ الشفت في الفولدر الآن</button>
+        <span class="pill" id="folderPill">📁 الحفظ في فولدر: غير محدد</span>
+        <button class="secondary" id="changePassBtn">🔑 تغيير كلمة المرور</button>
+      </div>
+      <div class="toolbar" style="border-top:1px solid var(--line);padding-top:12px;margin-top:12px">
+        <b>🗄️ درج الفلوس:</b>
+        <select id="drawerMode"><option value="off">مقفول</option><option value="driver">عن طريق درايفر الطابعة (الأسهل)</option><option value="serial">كابل COM / سيريال</option><option value="usb">USB مباشر</option></select>
+        <select id="drawerBaud" title="سرعة COM"><option>9600</option><option>19200</option><option>38400</option><option>115200</option></select>
+        <button class="secondary" id="pairDrawerBtn">🔌 ربط الجهاز</button>
+        <label style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="drwSale"> يفتح عند تأكيد البيع</label>
+        <label style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="drwCollect"> يفتح عند تحصيل الدليفري</label>
+        <button class="secondary" id="testDrawerBtn">🗄️ تجربة فتح الدرج</button>
+      </div>
+      <p class="footnote" id="persistNote">كل تعديلات المنيو والمناطق والطلبات محفوظة تلقائياً على جهازك.</p>
+    </div>
+    <div class="panel section">
+      <h3>سجل الشفتات</h3>
+      <div class="tablewrap"><table><thead><tr><th>الشفت</th><th>بداية</th><th>نهاية</th><th>الفواتير</th><th>المبيعات</th></tr></thead><tbody id="shiftRows"></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-reports">
+    <div class="panel section">
+      <h2>سجل الفواتير وحالة التحصيل</h2>
+      <div class="tablewrap"><table><thead><tr><th>رقم</th><th>الوقت</th><th>العميل</th><th>النوع</th><th>الحالة</th><th>الإجمالي</th><th>طباعة</th></tr></thead><tbody id="invoiceRows"></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-customers">
+    <div class="panel section">
+      <h2>دفتر العملاء</h2>
+      <div class="tablewrap"><table><thead><tr><th>الاسم</th><th>الهاتف</th><th>البلد</th><th>العنوان</th><th>الطلبات</th><th>الإجمالي</th><th>تعديل</th></tr></thead><tbody id="customerRows"></tbody></table></div>
+    </div>
+  </section>
+</main>
+
+<div class="modalbg" id="modal"><div class="modal"><h3 id="modalTitle"></h3><div id="modalBody"></div><div class="modalactions"><button class="secondary" id="modalCancel">إلغاء</button><button class="primary" id="modalOK">تأكيد</button></div></div></div>
+<div class="toast" id="toast"></div>
+<div id="printArea"></div>
+<div class="modalbg" id="pvBg"><div class="modal" style="width:min(760px,100%)"><h3>معاينة الورق قبل الطباعة</h3><div class="pv" id="pvBody"></div><div class="modalactions"><button class="secondary" id="pvClose">إغلاق</button><button class="primary" id="pvPrint">🖨 طباعة</button></div></div></div>
+
+<script>
+const DEFAULT_MENU=[
+  {c:"المشويات",n:"كفتة لحم",p:450},{c:"المشويات",n:"كفتة فراخ",p:300},{c:"المشويات",n:"كباب",p:530},{c:"المشويات",n:"طرب",p:530},{c:"المشويات",n:"شيش طاووق",p:450},{c:"المشويات",n:"كيلو مشكل",p:600},{c:"المشويات",n:"فرخة مشوية",p:320},{c:"المشويات",n:"نصف فرخة",p:150},{c:"المشويات",n:"ربع فرخة ورك",p:90},{c:"المشويات",n:"ربع فرخة صدر",p:100},
+  {c:"سندوتشات فحم",n:"سندوتش كفتة",p:80},{c:"سندوتشات فحم",n:"سندوتش شيش طاووق",p:75},{c:"سندوتشات فحم",n:"سندوتش طرب",p:100},{c:"سندوتشات فحم",n:"سندوتش روزبيف",p:110},{c:"سندوتشات فحم",n:"سندوتش كفتة موزاريلا",p:100},
+  {c:"وجبات شواية",n:"وجبة كفتة",p:130},{c:"وجبات شواية",n:"وجبة شيش",p:110},{c:"وجبات شواية",n:"وجبة روزبيف",p:200},{c:"وجبات شواية",n:"وجبة طرب",p:220},{c:"وجبات شواية",n:"وجبة ميكس جريل",p:250},{c:"وجبات شواية",n:"وجبة وينجز فحم",p:75},{c:"وجبات شواية",n:"وجبة كفتة فراخ",p:100},{c:"وجبات شواية",n:"وجبة طرب وكفتة",p:200},
+  {c:"البيتزا",n:"بيتزا مارجريتا",v:[{s:"صغير",p:100},{s:"كبير",p:115}]},
+  {c:"البيتزا",n:"بيتزا خضار",v:[{s:"صغير",p:100},{s:"كبير",p:115}]},
+  {c:"البيتزا",n:"بيتزا ميكس جبن",v:[{s:"صغير",p:120},{s:"كبير",p:135}]},
+  {c:"البيتزا",n:"بيتزا سجق",v:[{s:"صغير",p:130},{s:"كبير",p:145}]},
+  {c:"البيتزا",n:"بيتزا شيش",v:[{s:"صغير",p:130},{s:"كبير",p:145}]},
+  {c:"البيتزا",n:"بيتزا كفتة",v:[{s:"صغير",p:140},{s:"كبير",p:155}]},
+  {c:"البيتزا",n:"بيتزا بسطرمة",v:[{s:"صغير",p:125},{s:"كبير",p:140}]},
+  {c:"البيتزا",n:"بيتزا كرسبي",v:[{s:"صغير",p:110},{s:"كبير",p:125}]},
+  {c:"البيتزا",n:"بيتزا ميكس لحوم",v:[{s:"صغير",p:150},{s:"كبير",p:165}]},
+  {c:"البيتزا",n:"بيتزا شاورما",v:[{s:"صغير",p:115},{s:"كبير",p:130}]},
+  {c:"البيتزا",n:"بيتزا رانش",v:[{s:"صغير",p:115},{s:"كبير",p:130}]},
+  {c:"البيتزا",n:"بيتزا باربكيو",v:[{s:"صغير",p:115},{s:"كبير",p:130}]},
+  {c:"البيتزا",n:"بيتزا فاهيتا",v:[{s:"صغير",p:125},{s:"كبير",p:125}]},
+  {c:"البيتزا",n:"بيتزا روستو",v:[{s:"صغير",p:120},{s:"كبير",p:170}]},
+  {c:"البيتزا",n:"بيتزا سي فود",v:[{s:"صغير",p:150},{s:"كبير",p:170}]},
+  {c:"البيتزا",n:"بيتزا لحم مفروم",v:[{s:"صغير",p:125},{s:"كبير",p:140}]},
+  {c:"فطير حادق",n:"فطيرة سجق",v:[{s:"صغير",p:125},{s:"كبير",p:145}]},
+  {c:"فطير حادق",n:"فطيرة بسطرمة",v:[{s:"صغير",p:125},{s:"كبير",p:145}]},
+  {c:"فطير حادق",n:"فطيرة مشكل جبن",v:[{s:"صغير",p:125},{s:"كبير",p:145}]},
+  {c:"فطير حادق",n:"فطيرة مشكل لحوم",v:[{s:"صغير",p:135},{s:"كبير",p:155}]},
+  {c:"فطير حادق",n:"فطيرة شاورما فراخ",v:[{s:"صغير",p:125},{s:"كبير",p:145}]},
+  {c:"فطير حادق",n:"فطيرة سي فود",v:[{s:"صغير",p:140},{s:"كبير",p:160}]},
+  {c:"فطير حادق",n:"فطيرة تونة",v:[{s:"صغير",p:125},{s:"كبير",p:145}]},
+  {c:"فطير حلو",n:"فطيرة نوتيلا",p:80},{c:"فطير حلو",n:"فطيرة كاستر",p:40},{c:"فطير حلو",n:"فطيرة عسل وقشطة",p:50},{c:"فطير حلو",n:"فطيرة مكسرات صغير",p:70},{c:"فطير حلو",n:"فطيرة مكسرات كبير",p:90},
+  {c:"حواوشي",n:"حواوشي - يبدأ من",p:80},
+  {c:"وجبات الشاورما العربي",n:"شاورما عربي",p:115},{c:"وجبات الشاورما العربي",n:"شاورما عربي دبل",p:200},{c:"وجبات الشاورما العربي",n:"شاورما عربي تربل",p:300},{c:"وجبات الشاورما العربي",n:"وجبة شاورما عربي روستو (5 ساندوتش قطع)",p:420},{c:"وجبات الشاورما العربي",n:"وجبة شاورما اكسترا",p:120},
+  {c:"الشاورما بالوزن",n:"كيلو شاورما",p:650},{c:"الشاورما بالوزن",n:"نصف كيلو شاورما",p:300},{c:"الشاورما بالوزن",n:"ربع كيلو شاورما",p:140},
+  {c:"الفتة",n:"فتة شاورما",v:[{s:"صغير",p:85},{s:"وسط",p:100},{s:"كبير",p:150}]},
+  {c:"الفتة",n:"فتة كرسبي",v:[{s:"صغير",p:85},{s:"وسط",p:100},{s:"كبير",p:150}]},
+  {c:"الفتة",n:"فتة فاهيتا",v:[{s:"صغير",p:85},{s:"وسط",p:100},{s:"كبير",p:150}]},
+  {c:"الفتة",n:"فتة ميكسكي",v:[{s:"صغير",p:85},{s:"وسط",p:100},{s:"كبير",p:150}]},
+  {c:"الفتة",n:"فتة شيش طاووق",v:[{s:"صغير",p:85},{s:"وسط",p:100},{s:"كبير",p:150}]},
+  {c:"الفتة",n:"فتة كفتة لحم",v:[{s:"صغير",p:110},{s:"وسط",p:140}]},
+  {c:"الفتة",n:"فتة روستو",v:[{s:"صغير",p:100},{s:"وسط",p:115},{s:"كبير",p:170}]},
+  {c:"الغربي - سوري وفرنساوي",n:"بطاطس سوري",v:[{s:"سوري",p:25},{s:"فرنساوي",p:30}]},
+  {c:"الغربي - سوري وفرنساوي",n:"بطاطس سوري موزاريلا",v:[{s:"سوري",p:35},{s:"فرنساوي",p:40}]},
+  {c:"الغربي - سوري وفرنساوي",n:"فاهيتا",v:[{s:"سوري",p:60},{s:"فرنساوي",p:65}]},
+  {c:"الغربي - سوري وفرنساوي",n:"كرسبي",v:[{s:"سوري",p:60},{s:"فرنساوي",p:65}]},
+  {c:"الغربي - سوري وفرنساوي",n:"زنجر",v:[{s:"سوري",p:60},{s:"فرنساوي",p:65}]},
+  {c:"البرجر",n:"برجر سماش",p:60},{c:"البرجر",n:"برجر سماش دبل",p:90},{c:"البرجر",n:"برجر سماش تربل",p:120},{c:"البرجر",n:"برجر كلاسيك",p:80},{c:"البرجر",n:"برجر كلاسيك دبل",p:120},{c:"البرجر",n:"برجر كلاسيك تربل",p:160},
+  {c:"وجبات الغربي",n:"وجبة كرسبي",p:120},{c:"وجبات الغربي",n:"وجبة زنجر",p:120},{c:"وجبات الغربي",n:"وجبة اسكالوب",p:120},{c:"وجبات الغربي",n:"وجبة تشيكن رول",p:120},{c:"وجبات الغربي",n:"وجبة روستو",p:170},
+  {c:"الماريا",n:"ماريا شاورما",p:115},{c:"الماريا",n:"ماريا كرسبي",p:110},{c:"الماريا",n:"ماريا زنجر",p:110},{c:"الماريا",n:"ماريا فاهيتا",p:110},{c:"الماريا",n:"ماريا ميكسكي",p:110},{c:"الماريا",n:"ماريا شيش",p:115},{c:"الماريا",n:"ماريا كفتة لحم",p:115},{c:"الماريا",n:"ماريا روستو",p:140},
+  {c:"الطواجن",n:"أرز معمر باللحمة",p:180},{c:"الطواجن",n:"خضار باللحمة",p:150},{c:"الطواجن",n:"طاجن فتة",p:220},{c:"الطواجن",n:"حمام محشي",p:120},
+  {c:"المقبلات الباردة",n:"طحينة",v:[{s:"صغير",p:10},{s:"كبير",p:20}]},
+  {c:"المقبلات الباردة",n:"تومية",v:[{s:"صغير",p:10},{s:"كبير",p:20}]},
+  {c:"المقبلات الباردة",n:"تومية إسبايسي",v:[{s:"صغير",p:10},{s:"كبير",p:20}]},
+  {c:"المقبلات الباردة",n:"بابا غنوج",v:[{s:"صغير",p:10},{s:"كبير",p:20}]},
+  {c:"المقبلات الباردة",n:"كلوسلو",v:[{s:"صغير",p:15},{s:"كبير",p:25}]},
+  {c:"المقبلات الباردة",n:"مخلل",v:[{s:"صغير",p:10}]},
+  {c:"المقبلات الباردة",n:"باذنجان",v:[{s:"صغير",p:15},{s:"كبير",p:25}]},
+  {c:"المقبلات الساخنة",n:"باكت بطاطس",v:[{s:"صغير",p:15},{s:"كبير",p:25}]},
+  {c:"المقبلات الساخنة",n:"باكت بطاطس شيدر",v:[{s:"صغير",p:40}]},
+  {c:"المقبلات الساخنة",n:"باكت بطاطس مكسيكانو",v:[{s:"صغير",p:60}]},
+  {c:"المقبلات الساخنة",n:"أرز بسمتي",v:[{s:"صغير",p:25},{s:"كبير",p:25}]},
+  {c:"المقبلات الساخنة",n:"أرز شعرية",v:[{s:"صغير",p:15},{s:"كبير",p:25}]},
+  {c:"المقبلات الساخنة",n:"ورق عنب",v:[{s:"صغير",p:60},{s:"كبير",p:90}]},
+  {c:"المقبلات الساخنة",n:"ماشي مشكل",v:[{s:"صغير",p:70},{s:"كبير",p:100}]}
+];
+
+const $=id=>document.getElementById(id),
+      money=n=>Number(n||0).toLocaleString("en-US")+" ج.م",
+      esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+let MENU=(()=>{
+  try{
+    let s=localStorage.getItem("rf_demo_menu_v4");
+    if(s)return JSON.parse(s);
+    localStorage.setItem("rf_demo_menu_v4",JSON.stringify(DEFAULT_MENU));
+    return JSON.parse(JSON.stringify(DEFAULT_MENU));
+  }catch{return JSON.parse(JSON.stringify(DEFAULT_MENU))}
+})();
+
+let ZONES=(()=>{
+  try{
+    let z=localStorage.getItem("rf_demo_zones_v1");
+    if(z)return JSON.parse(z);
+    for(let i=0;i<localStorage.length;i++){
+      let k=localStorage.key(i)||"";
+      if(k.includes("zone")||k.includes("countr")){
+        let parsed=JSON.parse(localStorage.getItem(k)||"null");
+        if(Array.isArray(parsed)&&parsed.length){
+          localStorage.setItem("rf_demo_zones_v1",JSON.stringify(parsed));
+          return parsed;
+        }
+      }
+    }
+    return[];
+  }catch{return[]}
+})();
+
+let S=(()=>{
+  try{
+    return Object.assign({fee:20},JSON.parse(localStorage.getItem("rf_demo_set")||"{}"));
+  }catch{return{fee:20}}
+})();
+
+let DRIVERS=(()=>{
+  try{
+    let d=localStorage.getItem("rf_demo_drivers_v1");
+    if(d)return JSON.parse(d);
+    let def=[{id:"D1",name:"أحمد محمود"},{id:"D2",name:"كريم سيد"},{id:"D3",name:"مصطفى طارق"}];
+    localStorage.setItem("rf_demo_drivers_v1",JSON.stringify(def));
+    return def;
+  }catch{return[{id:"D1",name:"أحمد محمود"},{id:"D2",name:"كريم سيد"},{id:"D3",name:"مصطفى طارق"}]}
+})();
+
+let activeCat="الكل",mgrActiveCat="الكل",cart=[],curFee=null,modalAction=null,shiftUnlocked=false,autoFilledCustomer=false;
+
+/* قاعدة البيانات IndexedDB */
+let DBH=null,DBERR="",NEXTNO=0;
+function syncNo(){NEXTNO=state.orders.reduce((a,x)=>Math.max(a,x.no||0),0)}
+function dbOpen(){return new Promise((res,rej)=>{if(!window.indexedDB)return rej();let r=indexedDB.open("rosto_pos",1);r.onupgradeneeded=()=>{r.result.createObjectStore("kv");r.result.createObjectStore("orders",{keyPath:"id"})};r.onsuccess=()=>{DBH=r.result;res()};r.onerror=()=>rej(r.error)})}
+function dbReq(store,mode,fn){if(!DBH)return Promise.reject(new Error("no-db"));return new Promise((res,rej)=>{let t=DBH.transaction(store,mode),r=fn(t.objectStore(store));t.oncomplete=()=>res(r&&r.result);t.onerror=t.onabort=()=>rej(t.error)})}
+function dbPut(k,v){
+  if(!DBH){try{localStorage.setItem("rf_fb_"+k,JSON.stringify(v))}catch{toast("⚠️ مساحة الحفظ ممتلئة")}return}
+  dbReq("kv","readwrite",s=>s.put(v,k)).catch(e=>toast("⚠️ فشل الحفظ: "+((e&&(e.name||e.message))||"خطأ")))
+}
+function dbSaveOrder(o){
+  if(!DBH){try{localStorage.setItem("rf_fb_orders",JSON.stringify(state.orders))}catch{toast("⚠️ مساحة الحفظ ممتلئة، خد نسخة احتياطية")}return}
+  dbReq("orders","readwrite",s=>s.put(o)).catch(e=>toast("⚠️ فشل حفظ الأوردر: "+((e&&(e.name||e.message))||"خطأ")))
+}
+function saveMenu(){dbPut("menu",MENU)}
+function saveZones(){dbPut("zones",ZONES)}
+function saveDrivers(){dbPut("drivers",DRIVERS)}
+function saveSet(){dbPut("settings",S)}
+function toast(msg){$("toast").textContent=msg;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2500)}
+function openModal(title,body,onOK){$("modalTitle").textContent=title;$("modalBody").innerHTML=body;modalAction=onOK;$("modal").classList.add("show")}
+
+async function enableStorageProtection(manual){
+  try{
+    let ok=await navigator.storage?.persisted?.();
+    if(!ok&&navigator.storage?.persist)ok=await navigator.storage.persist();
+    let est=null;try{est=await navigator.storage.estimate()}catch{}
+    let used=est?" · "+(est.usage/1048576).toFixed(1)+" MB من "+(est.quota/1073741824).toFixed(0)+" GB":"";
+    $("persistPill").textContent=(ok?"🛡️ التخزين: محمي دائم":"🛡️ التخزين: محفوظ محلياً")+used;
+    if(manual)toast(ok?"تم تفعيل حماية التخزين الدائم بنجاح 🛡️":"البيانات محفوظة محلياً؛ يُنصح بأخذ نسخة احتياطية دورياً");
+  }catch{$("persistPill").textContent="🛡️ التخزين: محفوظ محلياً"}
+}
+
+let state=(()=>{
+  try{
+    let saved=localStorage.getItem("rf_demo_state");
+    if(saved)return JSON.parse(saved);
+  }catch{}
+  return seedDemo();
+})();
+
+function seedDemo(){
+  let now=Date.now();
+  return {
+    shift:{id:"SH-101",start:new Date(now-7200000).toISOString(),end:null},
+    shifts:[],
+    customers:[
+      {phone:"01012345678",name:"محمود عبد الله",address:"شارع النصر - عمارة 14",orders:3,total:640},
+      {phone:"01198765432",name:"سارة حسن",address:"ميدان الحرية - برج السلام",orders:2,total:390}
+    ],
+    orders:[
+      {
+        id:"RF-1001",no:1,date:new Date(now-420000).toISOString(),shiftId:"SH-101",
+        type:"دليفري",payment:"كاش",customer:"محمود عبد الله",phone:"01012345678",
+        address:"شارع النصر - عمارة 14",driver:"D1",notes:"زيادة تومية",
+        items:[{name:"نصف فرخة",price:150,qty:1},{name:"بيتزا روستو — كبير",price:170,qty:1}],
+        total:340,status:"prep"
+      },
+      {
+        id:"RF-1002",no:2,date:new Date(now-960000).toISOString(),outAt:new Date(now-310000).toISOString(),shiftId:"SH-101",
+        type:"دليفري",payment:"كاش",customer:"سارة حسن",phone:"01198765432",
+        address:"ميدان الحرية - برج السلام",driver:"D2",notes:"",
+        items:[{name:"وجبة ميكس جريل",price:250,qty:1},{name:"برجر سماش دبل",price:90,qty:1}],
+        total:360,status:"delivery"
+      }
+    ]
+  };
+}
+
+function persistState(){
+  try{
+    let {orders:_o,...rest}=state;
+    dbPut("state",rest);
+  }catch{
+    toast("⚠️ مساحة التخزين ممتلئة، صدّر نسخة احتياطية أو احذف أوردرات قديمة");
+  }
+}
+
+function getCats(){return["الكل",...new Set([...MENU.map(x=>x.c),"الكريب"])]}
+function renderCats(){
+  let cats=getCats();
+  if(!cats.includes(activeCat))activeCat="الكل";
+  $("cats").innerHTML=cats.map(c=>`<button class="cat ${c===activeCat?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+}
+function renderItems(){
+  let q=$("search").value.trim();
+  let list=MENU.filter(x=>(activeCat==="الكل"||x.c===activeCat)&&(!q||x.n.includes(q)||x.c.includes(q)));
+  if(!list.length&&activeCat==="الكريب"&&!q){
+    $("items").innerHTML='<div class="empty">خانة الكريب فاضية جاهزة — افتح "تعديل المنيو والعروض" وأضف أصناف الكريب براحتك</div>';
+    return;
+  }
+  $("items").innerHTML=list.map(x=>{
+    let i=MENU.indexOf(x);
+    let btns=x.v?x.v.map((v,j)=>`<button class="pick" data-add="${i}" data-v="${j}">${esc(v.s)} · ${money(v.p)}</button>`).join("")
+               :`<button class="pick single" data-add="${i}">إضافة · ${money(x.p)}</button>`;
+    let qtyInCart=cart.filter(c=>c.name===x.n||c.name.startsWith(x.n+" — ")).reduce((a,c)=>a+c.qty,0);
+    return `<div class="item" ${qtyInCart?`data-q="${qtyInCart}"`:""}><b>${esc(x.n)}</b><div class="item-actions">${btns}</div></div>`;
+  }).join("")||'<div class="empty">لا توجد أصناف مطابقة</div>';
+}
+function addItem(item,variant){
+  let p=variant?variant.p:item.p;
+  let n=item.n+(variant?" — "+variant.s:"");
+  let key=n+"|"+p;
+  let found=cart.find(x=>x.key===key);
+  if(found)found.qty++;else cart.push({key,name:n,price:p,qty:1,c:item.c});
+  renderCart();
+}
+function calcTotal(){
+  let sub=cart.reduce((a,x)=>a+x.price*x.qty,0);
+  let isDel=$("type").value==="دليفري";
+  let fee=isDel?(curFee!==null?curFee:(+S.fee||0)):0;
+  let disc=Math.min(Math.max(+$("discount").value||0,0),sub);
+  return{sub,fee,isDel,disc,total:sub+fee-disc};
+}
+function selectCountryIndex(idx){
+  let sel=$("posZone");
+  if(idx!==""&&ZONES[+idx]){
+    let z=ZONES[+idx];
+    sel.value=String(idx);
+    curFee=+z.fee;
+    toast("📍 تم اختيار "+z.name+" ("+money(z.fee)+") وإضافتها للفاتورة");
+  }else{
+    sel.value="";
+    curFee=null;
+  }
+  renderCart();
+}
+function renderCountryChips(){
+  let box=$("countryChips");
+  if(!box)return;
+  let curIdx=$("posZone").value;
+  box.innerHTML=ZONES.slice(0,10).map((z,i)=>{
+    let active=String(i)===String(curIdx);
+    return `<button type="button" data-cchip="${i}" style="font-size:11px;padding:4px 8px;border-radius:7px;border:1px solid ${active?"var(--gold)":"#3c4450"};background:${active?"#3b3014":"#191d24"};color:${active?"#ffe594":"#d8dee6"}">${esc(z.name)} · <b>${money(z.fee)}</b></button>`;
+  }).join("");
+}
+function renderCart(){
+  $("count").textContent=cart.reduce((s,x)=>s+x.qty,0)+" قطعة";
+  $("cart").innerHTML=cart.length?cart.map(x=>`<div class="rowitem"><b class="qn">${x.qty}</b><span class="nm">${esc(x.name)}</span><b class="pr">${money(x.price*x.qty)}</b><div class="qty"><button data-q="m" data-k="${esc(x.key)}">−</button><button data-q="p" data-k="${esc(x.key)}">+</button><button data-q="x" data-k="${esc(x.key)}">×</button></div></div>`).join(""):'<div class="empty">السلة فارغة<br>اختار الأصناف من اليمين</div>';
+  let c=calcTotal();
+  $("zoneBox").style.display=c.isDel?"":"none";
+  $("addrBox").style.display=c.isDel?"":"none";
+  $("drvBox").style.display=c.isDel?"":"none";
+  $("feeRow").style.display=c.isDel?"":"none";
+  $("feeVal").textContent=money(c.fee);
+  $("total").textContent=money(c.total);
+  $("finish").disabled=!cart.length;
+}
+
+function syncPosZones(){
+  let sel=$("posZone"),cur=sel.value;
+  sel.innerHTML='<option value="">— اختر البلد لتحديد السعر —</option>'+ZONES.map((z,i)=>`<option value="${i}">${esc(z.name)} (${money(z.fee)})</option>`).join("");
+  if(cur!==""&&ZONES[+cur])sel.value=cur;
+  renderCountryChips();
+}
+function syncDriversSelect(){
+  let sel=$("driver"),cur=sel.value;
+  sel.innerHTML='<option value="">— اختر السائق —</option>'+DRIVERS.map(d=>`<option value="${esc(d.id)}">${esc(d.name)}</option>`).join("");
+  if(DRIVERS.some(d=>d.id===cur))sel.value=cur;
+}
+$("posZone").onchange=()=>selectCountryIndex($("posZone").value);
+$("countryChips").onclick=e=>{
+  let b=e.target.closest("[data-cchip]");
+  if(b)selectCountryIndex(b.dataset.cchip);
+};
+
+$("phone").oninput=()=>{
+  let ph=$("phone").value.replace(/\D/g,"");
+  if(ph.length>=10){
+    let found=state.customers.find(c=>c.phone===ph);
+    if(found){
+      if(!$("customer").value&&found.name)$("customer").value=found.name;
+      if(!$("address").value&&found.address)$("address").value=found.address;
+      if(!$("posZone").value&&found.zoneName){
+        let zIdx=ZONES.findIndex(z=>z.name===found.zoneName);
+        if(zIdx>=0){$("posZone").value=String(zIdx);curFee=+ZONES[zIdx].fee;renderCart()}
+      }
+      if(!autoFilledCustomer){
+        autoFilledCustomer=true;
+        toast("👤 تم استدعاء بيانات العميل (يمكنك تعديلها أو تغيير طريقة الاستلام بحرية)");
+      }
+    }
+  }else{
+    autoFilledCustomer=false;
+  }
+};
+
+function finishSale(){
+  if(!cart.length)return;
+  let btn=$("finish");
+  if(btn.disabled)return;
+  btn.disabled=true;
+  try{
+    if(!state.shift){btn.disabled=!cart.length;toast("افتح شفت جديد الأول");switchView("shifts");return}
+    let c=calcTotal();
+    let oType=$("type").value;
+    let cleanPhone=$("phone").value.replace(/\D/g,"");
+    let cleanAddr=$("address").value.trim();
+    let zIdx=$("posZone").value;
+    let zoneName=(zIdx!==""&&ZONES[+zIdx])?ZONES[+zIdx].name:"";
+    if(c.isDel){
+      if(cleanPhone.length<10){btn.disabled=false;toast("ممنوع الطباعة في الدليفري بدون رقم تليفون صحيح");$("phone").focus();return}
+      if(!cleanAddr){btn.disabled=false;toast("ممنوع الطباعة في الدليفري بدون كتابة العنوان");$("address").focus();return}
+    }
+    let no=++NEXTNO;
+    let o={
+      id:"RF-"+(1000+no),no,date:new Date().toISOString(),shiftId:state.shift.id,
+      type:oType,payment:$("payment").value,
+      customer:$("customer").value.trim(),phone:cleanPhone,
+      zoneName:c.isDel?zoneName:"",
+      address:c.isDel?cleanAddr:"",driver:c.isDel?$("driver").value:"",
+      notes:$("notes").value.trim(),items:cart.map(x=>({name:x.name,price:x.price,qty:x.qty,c:x.c})),sub:c.sub,fee:c.fee,disc:c.disc,
+      total:c.total,status:oType==="تيك أواي"?"done":"prep"
+    };
+    state.orders.push(o);dbSaveOrder(o);
+    if(o.phone.length>=10){
+      let ex=state.customers.find(x=>x.phone===o.phone);
+      let nextName=o.customer||(ex?ex.name:"");
+      let nextZone=c.isDel?(zoneName||(ex?ex.zoneName:"")):(ex?ex.zoneName:"");
+      let nextAddr=c.isDel?(cleanAddr||(ex?ex.address:"")):(ex?ex.address:"");
+      if(ex){ex.name=nextName;ex.zoneName=nextZone;ex.address=nextAddr;ex.orders++;ex.total+=o.total}
+      else state.customers.push({phone:o.phone,name:nextName,zoneName:nextZone,address:nextAddr,orders:1,total:o.total});
+    }
+    cart=[];autoFilledCustomer=false;
+    $("customer").value="";$("phone").value="";$("address").value="";$("notes").value="";$("discount").value="";$("posZone").value="";curFee=null;
+    renderCart();
+    if(o.status==="prep"){
+      $("activeOrdersBadge").textContent=String(Number($("activeOrdersBadge").textContent||0)+1);
+    }
+    persistState();renderTracker();
+    if(S.drwSale!==false)kickDrawer("sale",o);
+    printOrder(o);
+    toast(o.status==="prep"
+      ?"🖨 تم تسجيل الأوردر #"+no+" ونزل في تحت التجهيز!"
+      :"🖨 تم تسجيل طلب التيك أواي #"+no+"");
+  }finally{
+    btn.disabled=!cart.length;
+  }
+}
+
+const fmtTimer=ms=>{
+  let s=Math.max(0,Math.floor(ms/1000));
+  let m=Math.floor(s/60),sec=s%60;
+  return String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+};
+function updateTimers(){
+  let now=Date.now();
+  document.querySelectorAll("[data-since]").forEach(el=>{
+    let ms=now-Number(el.dataset.since);
+    el.textContent=(el.dataset.label||"")+fmtTimer(ms);
+    el.classList.toggle("warn",ms>15*60000);
+  });
+}
+setInterval(updateTimers,1000);
+
+function driverName(id){let d=DRIVERS.find(x=>x.id===id);return d?d.name:""}
+function renderTracker(){
+  let prep=state.orders.filter(o=>o.status==="prep");
+  let deliv=state.orders.filter(o=>o.status==="delivery");
+  $("prepCount").textContent=prep.length;
+  $("delivCount").textContent=deliv.length;
+  $("activeOrdersBadge").textContent=prep.length+deliv.length;
+  $("pendingCashPill").textContent="نقدية مع الدليفري: "+money(deliv.reduce((a,o)=>a+o.total,0));
+
+  const card=(o,mode)=>{
+    let since=new Date(mode==="prep"?o.date:(o.outAt||o.date)).getTime();
+    let label=mode==="prep"?"⏱ تجهيز: ":"🛵 توصيل: ";
+    let itemsStr=o.items.map(i=>`<b>${i.qty}×</b> ${esc(i.name)}`).join(" &nbsp;|&nbsp; ");
+    let drvNm=driverName(o.driver);
+    let drvSel=mode==="prep"?`<select class="drv-select" data-drv="${esc(o.id)}"><option value="">اختار سائق...</option>${DRIVERS.map(d=>`<option value="${d.id}" ${o.driver===d.id?"selected":""}>${esc(d.name)}</option>`).join("")}</select>`:"";
+    let btn=mode==="prep"
+      ?`${drvSel}<button class="primary" data-act="to-deliv" data-id="${esc(o.id)}">🛵 تسليم للدليفري</button>`
+      :`<button class="success" data-act="collect" data-id="${esc(o.id)}">✅ تم التحصيل (${money(o.total)})</button>`;
+
+    return `<div class="ord-card ${mode}">
+      <div class="ord-top">
+        <div><span class="ord-no">#${o.no}</span> <span class="ord-type">${esc(o.type)} · ${esc(o.payment)}</span></div>
+        <span class="timer-pill" data-since="${since}" data-label="${label}">${label}${fmtTimer(Date.now()-since)}</span>
+      </div>
+      <div class="ord-items">${itemsStr}</div>
+      <div class="ord-meta">
+        ${(o.customer||o.phone)?`<div>👤 <b>${esc(o.customer||"عميل")}</b> ${o.phone?"· "+esc(o.phone):""}</div>`:""}
+        ${o.address?`<div class="ord-addr">📍 ${esc(o.address)}</div>`:""}
+        ${drvNm?`<div>🛵 السائق: <b style="color:#7dd3fc">${esc(drvNm)}</b></div>`:""}
+        ${o.notes?`<div style="color:#fca5a5">⚠ ملاحظات: ${esc(o.notes)}</div>`:""}
+      </div>
+      <div class="ord-foot">
+        <span class="ord-total">${money(o.total)}</span>
+        <div class="ord-btns">${btn}</div>
+      </div>
+    </div>`;
+  };
+
+  $("prepList").innerHTML=prep.length?prep.map(o=>card(o,"prep")).join(""):'<div class="empty">لا توجد طلبات تحت التجهيز</div>';
+  $("delivList").innerHTML=deliv.length?deliv.map(o=>card(o,"deliv")).join(""):'<div class="empty">لا توجد طلبات تحت التوصيل</div>';
+  updateTimers();
+}
+
+$("view-tracker").onclick=e=>{
+  let btn=e.target.closest("button[data-act]");if(!btn)return;
+  let o=state.orders.find(x=>x.id===btn.dataset.id);if(!o)return;
+  if(btn.dataset.act==="to-deliv"){
+    let sel=document.querySelector(`select[data-drv="${o.id}"]`);
+    if(sel&&sel.value)o.driver=sel.value;
+    o.status="delivery";
+    o.outAt=new Date().toISOString();dbSaveOrder(o);
+    persistState();renderTracker();
+    toast("🛵 الأوردر #"+o.no+" خرج مع الدليفري وبدأ عداد التوصيل من 00:00");
+  }else if(btn.dataset.act==="collect"){
+    o.status="done";
+    o.collectedAt=new Date().toISOString();dbSaveOrder(o);
+    persistState();renderTracker();
+    if(S.drwCollect!==false)kickDrawer("collect",o);
+    toast("✅ تم تشييك وتحصيل الأوردر #"+o.no);
+  }
+};
+
+function renderMenuMgr(){
+  let cats=getCats();
+  if(!cats.includes(mgrActiveCat))mgrActiveCat="الكل";
+  $("mgrCats").innerHTML=cats.map(c=>`<button class="cat ${c===mgrActiveCat?"active":""}" data-mcat="${esc(c)}">${esc(c)}</button>`).join("");
+  let addBtn=$("addToCurrentCatBtn");
+  if(mgrActiveCat!=="الكل"){addBtn.style.display="";addBtn.textContent="➕ إضافة صنف داخل ("+mgrActiveCat+")"}
+  else addBtn.style.display="none";
+
+  let q=($("menuMgrSearch").value||"").trim();
+  $("menuMgrRows").innerHTML=MENU.map((x,idx)=>({x,idx}))
+    .filter(({x})=>(mgrActiveCat==="الكل"||x.c===mgrActiveCat)&&(!q||x.n.includes(q)||x.c.includes(q)))
+    .map(({x,idx})=>{
+      let pr=x.v?x.v.map(v=>`${esc(v.s)}: <b>${money(v.p)}</b>`).join(" | "):`<b>${money(x.p)}</b>`;
+      return `<tr><td>${esc(x.c)}</td><td><b>${esc(x.n)}</b></td><td>${pr}</td><td style="white-space:nowrap"><button class="secondary" data-me="${idx}">تعديل السعر/الاسم</button> <button class="danger" data-md="${idx}">حذف</button></td></tr>`;
+    }).join("")||'<tr><td colspan="4">لا توجد أصناف في هذا القسم</td></tr>';
+}
+
+function menuItemModal(idx,presetCat){
+  let isNew=idx==null,item=isNew?{c:presetCat||(mgrActiveCat!=="الكل"?mgrActiveCat:"العروض"),n:"",p:100}:MENU[idx];
+  let hasV=!!item.v,vStr=hasV?item.v.map(v=>`${v.s}=${v.p}`).join("\n"):"صغير=100\nكبير=130";
+  openModal(isNew?"إضافة عرض / صنف جديد":"تعديل صنف في المنيو",`
+    <label class="field">القسم (اكتب قسم جديد أو اختار)<input id="mCat" list="catList" value="${esc(item.c)}"><datalist id="catList">${[...new Set(MENU.map(x=>x.c))].map(c=>`<option value="${esc(c)}">`).join("")}</datalist></label>
+    <label class="field">اسم الصنف أو العرض<input id="mName" value="${esc(item.n)}" placeholder="مثال: كريب شاورما / عرض الافتتاح"></label>
+    <label class="field">نوع السعر<select id="mMode"><option value="single" ${!hasV?"selected":""}>سعر واحد</option><option value="multi" ${hasV?"selected":""}>أحجام متعددة (صغير / كبير)</option></select></label>
+    <label class="field" id="mSingleBox" style="${hasV?"display:none":""}">السعر (ج.م)<input id="mPrice" type="number" min="0" value="${item.p||0}"></label>
+    <label class="field" id="mMultiBox" style="${!hasV?"display:none":""}">الأحجام (كل سطر: الحجم=السعر)<textarea id="mVars" rows="3">${esc(vStr)}</textarea></label>
+  `,()=>{
+    let c=$("mCat").value.trim()||"عام",n=$("mName").value.trim();
+    if(!n){toast("اكتب اسم الصنف");return}
+    let obj={c,n};
+    if($("mMode").value==="single")obj.p=+$("mPrice").value||0;
+    else{
+      let vs=$("mVars").value.split("\n").map(l=>l.split("=")).filter(a=>a[0].trim()&&!isNaN(+a[1])).map(a=>({s:a[0].trim(),p:+a[1]}));
+      if(!vs.length){toast("اكتب الأحجام بشكل صحيح");return}
+      obj.v=vs;
+    }
+    if(isNew)MENU.unshift(obj);else MENU[idx]=obj;
+    saveMenu();renderCats();renderItems();renderMenuMgr();toast("تم حفظ التعديل في المنيو ✅");
+  });
+  $("mMode").onchange=()=>{$("mSingleBox").style.display=$("mMode").value==="single"?"":"none";$("mMultiBox").style.display=$("mMode").value==="multi"?"":"none"};
+}
+
+function addCategoryWithItemsModal(){
+  openModal("➕ إضافة قسم جديد بمشتقاته",`
+    <label class="field">اسم القسم الجديد<input id="ncName" placeholder="مثال: الكريب أو عروض الافتتاح"></label>
+    <label class="field">المشتقات / الأصناف وأسعارها (كل صنف في سطر: الاسم=السعر)
+      <textarea id="ncList" rows="5" placeholder="كريب شاورما=85\nكريب فراخ=80\nكريب زنجر=85\nكريب ميكس جبن=75"></textarea>
+    </label>
+  `,()=>{
+    let cat=$("ncName").value.trim();
+    if(!cat){toast("اكتب اسم القسم");return}
+    let lines=$("ncList").value.split("\n").map(l=>l.split("=")).filter(a=>a[0].trim()&&!isNaN(+a[1]));
+    if(!lines.length){toast("اكتب صنف واحد على الأقل بصيغة: الاسم=السعر");return}
+    lines.reverse().forEach(a=>MENU.unshift({c:cat,n:a[0].trim(),p:+a[1]}));
+    mgrActiveCat=cat;activeCat=cat;
+    saveMenu();renderCats();renderItems();renderMenuMgr();
+    toast(`تم إضافة قسم "${cat}" بـ ${lines.length} أصناف ✅`);
+  });
+}
+
+$("addCatMultiBtn").onclick=addCategoryWithItemsModal;
+$("addMenuItemBtn").onclick=()=>menuItemModal(null);
+$("addToCurrentCatBtn").onclick=()=>menuItemModal(null,mgrActiveCat);
+$("topMenuEditBtn").onclick=()=>switchView("menuMgr");
+$("resetMenuBtn").onclick=()=>{MENU=JSON.parse(JSON.stringify(DEFAULT_MENU));saveMenu();renderCats();renderItems();renderMenuMgr();toast("تمت استعادة المنيو الأصلي")};
+$("menuMgrSearch").oninput=renderMenuMgr;
+$("mgrCats").onclick=e=>{let b=e.target.closest("[data-mcat]");if(b){mgrActiveCat=b.dataset.mcat;renderMenuMgr()}};
+$("menuMgrRows").onclick=e=>{
+  let b=e.target.closest("button");if(!b)return;
+  if(b.dataset.me!=null)menuItemModal(+b.dataset.me);
+  else if(b.dataset.md!=null){MENU.splice(+b.dataset.md,1);saveMenu();renderCats();renderItems();renderMenuMgr();toast("تم حذف الصنف")}
+};
+
+function renderZonesMgr(){
+  $("zonesRows").innerHTML=ZONES.length?ZONES.map((z,i)=>`
+    <tr>
+      <td><b>${esc(z.name)}</b></td>
+      <td><b style="color:var(--gold)">${money(z.fee)}</b></td>
+      <td style="white-space:nowrap">
+        <button class="secondary" data-ze="${i}">تعديل السعر / الاسم</button>
+        <button class="danger" data-zd="${i}">حذف</button>
+      </td>
+    </tr>`).join(""):'<tr><td colspan="3">لا توجد بلاد مضافة بعد — اضغط "إضافة بلد / منطقة جديدة" لتثبيت أسعار التوصيل</td></tr>';
+}
+function zoneModal(idx,onSaved){
+  let isNew=idx==null,z=isNew?{name:"",fee:30}:ZONES[idx];
+  openModal(isNew?"➕ إضافة بلد / منطقة بسعر ثابت":"✏️ تعديل البلد وسعرها الثابت",`
+    <label class="field">اسم البلد / المنطقة<input id="zName" value="${esc(z.name)}" placeholder="مثال: ميت غمر / أجا / السنبلاوين"></label>
+    <label class="field">سعر التوصيل الثابت (ج.م)<input id="zFee" type="number" min="0" value="${z.fee}"></label>
+  `,()=>{
+    let name=$("zName").value.trim(),fee=+$("zFee").value||0;
+    if(!name){toast("اكتب اسم البلد");return}
+    let targetIdx=idx;
+    if(isNew){ZONES.push({name,fee});targetIdx=ZONES.length-1}
+    else ZONES[idx]={name,fee};
+    saveZones();syncPosZones();renderZonesMgr();renderCart();
+    toast("تم حفظ "+name+" بسعر ثابت "+money(fee)+" ✅");
+    if(typeof onSaved==="function")onSaved(targetIdx);
+  });
+  setTimeout(()=>$("zName")?.focus(),50);
+}
+$("addZoneBtn").onclick=()=>zoneModal(null);
+$("zonesRows").onclick=e=>{
+  let b=e.target.closest("button");if(!b)return;
+  if(b.dataset.ze!=null)zoneModal(+b.dataset.ze);
+  else if(b.dataset.zd!=null){ZONES.splice(+b.dataset.zd,1);saveZones();syncPosZones();renderZonesMgr();renderCart();toast("تم حذف المنطقة")}
+};
+
+function renderDriversMgr(){
+  $("driversRows").innerHTML=DRIVERS.length?DRIVERS.map((d,i)=>`
+    <tr>
+      <td><b>${esc(d.name)}</b></td>
+      <td><span class="pill">${esc(d.id)}</span></td>
+      <td style="white-space:nowrap">
+        <button class="secondary" data-de="${i}">تعديل الاسم</button>
+        <button class="danger" data-dd="${i}">حذف</button>
+      </td>
+    </tr>`).join(""):'<tr><td colspan="3">لا يوجد سائقون مضافون بعد — اضغط "إضافة سائق جديد"</td></tr>';
+}
+function driverModal(idx){
+  let isNew=idx==null,d=isNew?{id:"D"+(Date.now().toString().slice(-4)),name:""}:DRIVERS[idx];
+  openModal(isNew?"➕ إضافة سائق جديد":"✏️ تعديل اسم السائق",`
+    <label class="field">اسم السائق<input id="dNameInp" value="${esc(d.name)}" placeholder="مثال: محمود الدليفري"></label>
+  `,()=>{
+    let nm=$("dNameInp").value.trim();
+    if(!nm){toast("اكتب اسم السائق");return}
+    if(isNew)DRIVERS.push({id:d.id,name:nm});
+    else DRIVERS[idx].name=nm;
+    saveDrivers();syncDriversSelect();renderDriversMgr();renderTracker();
+    toast("تم حفظ السائق "+nm+" ✅");
+  });
+  setTimeout(()=>$("dNameInp")?.focus(),50);
+}
+$("addDriverBtn").onclick=()=>driverModal(null);
+$("topDriversBtn").onclick=()=>switchView("driversMgr");
+$("driversRows").onclick=e=>{
+  let b=e.target.closest("button");if(!b)return;
+  if(b.dataset.de!=null)driverModal(+b.dataset.de);
+  else if(b.dataset.dd!=null){DRIVERS.splice(+b.dataset.dd,1);saveDrivers();syncDriversSelect();renderDriversMgr();renderTracker();toast("تم حذف السائق")}
+};
+
+function renderShifts(){
+  let cur=state.shift?state.orders.filter(o=>o.shiftId===state.shift.id):[];
+  $("shiftState").textContent=state.shift?"مفتوح ("+state.shift.id+")":"مغلق";
+  $("shiftSales").textContent=shiftUnlocked?money(cur.reduce((a,o)=>a+(o.total||0),0)):"🔒 مخفي";
+  $("shiftOrders").textContent=cur.length;
+  $("shiftPieces").textContent=cur.reduce((a,o)=>a+o.items.reduce((x,i)=>x+i.qty,0),0);
+  $("shiftRows").innerHTML=state.shifts.map(s=>`<tr><td>${esc(s.id)}</td><td>${new Date(s.start).toLocaleTimeString("ar-EG")}</td><td>${s.end?new Date(s.end).toLocaleTimeString("ar-EG"):"مفتوح"}</td><td>${s.count||0}</td><td>${money(s.total||0)}</td></tr>`).join("")||'<tr><td colspan="5">لا توجد شفتات مغلقة بعد</td></tr>';
+}
+function askShiftPass(onOk){
+  openModal("🔒 تأكيد باسوورد الشفت",`
+    <label class="field">أدخل باسوورد الشفت<input id="shiftPassInp" type="password" placeholder="******"></label>
+  `,()=>{
+    passOK(($("shiftPassInp")?.value||"").trim()).then(ok=>{if(ok)onOk()});
+  });
+  setTimeout(()=>$("shiftPassInp")?.focus(),50);
+}
+$("unlockShiftCash").onclick=()=>askShiftPass(()=>{shiftUnlocked=true;renderShifts();toast("تم إظهار إجمالي فلوس الشفت 🔓")});
+$("openShift").onclick=()=>{
+  if(state.shift)return toast("يوجد شفت مفتوح بالفعل");
+  state.shift={id:"SH-"+(102+state.shifts.length),start:new Date().toISOString(),end:null};
+  shiftUnlocked=false;persistState();renderShifts();toast("تم فتح شفت جديد ✅");
+};
+$("closeShift").onclick=()=>askShiftPass(async()=>{
+  if(!state.shift)return;
+  let open=state.orders.filter(o=>o.shiftId===state.shift.id&&o.status!=="done").length;
+  if(open){toast("⚠️ فيه "+open+" أوردر لسه تحت التجهيز/التوصيل، حصّلهم الأول وبعدين اقفل الشفت");switchView("tracker");return}
+  let cur=state.orders.filter(o=>o.shiftId===state.shift.id);
+  let tot=cur.reduce((a,o)=>a+(o.total||0),0);
+  let sh={...state.shift,end:new Date().toISOString(),count:cur.length,total:tot};
+  state.shifts.unshift(sh);
+  state.shift=null;shiftUnlocked=false;persistState();renderShifts();
+  let saved=await saveShiftToFolder(sh,cur);
+  toast("تم إغلاق الشفت · الإجمالي: "+money(tot)+(saved?" · اتحفظ في الفولدر 📁":""));
+});
+
+$("protectStorageBtn").onclick=()=>enableStorageProtection(true);
+$("exportDataBtn").onclick=()=>{
+  let data={app:"ROSTO_FIRE_POS",date:new Date().toISOString(),MENU,ZONES,DRIVERS,S,state};
+  let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="rosto-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();
+  toast("تم تنزيل ملف النسخة الاحتياطية 💾");
+};
+$("importDataInp").onchange=async e=>{
+  let f=e.target.files[0];if(!f)return;
+  try{
+    let d=JSON.parse(await f.text());
+    if(d.MENU){MENU=d.MENU;saveMenu()}
+    if(d.ZONES){ZONES=d.ZONES;saveZones()}
+    if(d.S){let ph=S.passHash;S=Object.assign({fee:20},d.S);delete S.shiftPass;if(!S.passHash&&ph)S.passHash=ph;saveSet()}
+    if(d.DRIVERS){DRIVERS=d.DRIVERS;saveDrivers();syncDriversSelect()}
+    if(d.state){state=d.state;state.orders=state.orders||[];syncNo();persistState();dbReq("orders","readwrite",s=>{s.clear();state.orders.forEach(o=>s.put(o))}).catch(()=>{})}
+    renderCats();syncPosZones();renderCart();renderTracker();renderMenuMgr();renderZonesMgr();renderShifts();
+    toast("تم استرجاع جميع البيانات بنجاح ✅");
+  }catch{toast("ملف النسخة الاحتياطية غير صالح")}
+};
+
+function renderReports(){
+  $("invoiceRows").innerHTML=state.orders.slice(-300).reverse().map(o=>{
+    let st=o.status==="prep"?'<span style="color:var(--gold)">🍳 تحت التجهيز</span>':o.status==="delivery"?'<span style="color:#7dd3fc">🛵 تحت التوصيل</span>':'<span style="color:var(--green)">✅ تم التحصيل</span>';
+    return `<tr><td>#${o.no}</td><td>${fdt(o.date)}</td><td>${esc(o.customer||"—")}</td><td>${esc(o.type)}</td><td>${st}</td><td><b>${money(o.total)}</b></td><td><button class="secondary" data-reprint="${esc(o.id)}" style="padding:5px 9px">🖨</button></td></tr>`;
+  }).join("");
+}
+function renderCustomers(){
+  $("customerRows").innerHTML=state.customers.map((c,i)=>`<tr><td>${esc(c.name||"—")}</td><td>${esc(c.phone)}</td><td>${esc(c.zoneName||"—")}</td><td>${esc(c.address||"—")}</td><td>${c.orders}</td><td>${money(c.total)}</td><td><button class="secondary" data-custedit="${i}" style="padding:6px 10px">تعديل</button></td></tr>`).join("")||'<tr><td colspan="7">لا يوجد عملاء مسجلون بعد</td></tr>';
+}
+function editCustomerModal(idx){
+  let c=state.customers[idx];if(!c)return;
+  openModal("✏️ تعديل بيانات العميل ("+c.phone+")",`
+    <label class="field">اسم العميل<input id="ecName" value="${esc(c.name||"")}"></label>
+    <label class="field">البلد / المنطقة<select id="ecZone"><option value="">— بدون بلد ثابتة —</option>${ZONES.map(z=>`<option value="${esc(z.name)}" ${c.zoneName===z.name?"selected":""}>${esc(z.name)}</option>`).join("")}</select></label>
+    <label class="field">العنوان بالتفصيل<input id="ecAddr" value="${esc(c.address||"")}"></label>
+  `,()=>{
+    c.name=$("ecName").value.trim();
+    c.zoneName=$("ecZone").value;
+    c.address=$("ecAddr").value.trim();
+    persistState();renderCustomers();
+    toast("تم تحديث بيانات العميل ✅");
+  });
+}
+$("customerRows").onclick=e=>{
+  let b=e.target.closest("button[data-custedit]");
+  if(b)editCustomerModal(+b.dataset.custedit);
+};
+
+function switchView(v){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
+  document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+v));
+  if(v==="tracker")renderTracker();
+  if(v==="menuMgr")renderMenuMgr();
+  if(v==="zonesMgr")renderZonesMgr();
+  if(v==="driversMgr")renderDriversMgr();
+  if(v==="shifts")renderShifts();
+  if(v==="reports")renderReports();
+  if(v==="customers")renderCustomers();
+}
+
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+$("cats").onclick=e=>{let b=e.target.closest("[data-cat]");if(b){activeCat=b.dataset.cat;renderCats();renderItems()}};
+$("items").onclick=e=>{let b=e.target.closest("[data-add]");if(b){let x=MENU[+b.dataset.add];addItem(x,b.dataset.v==null?null:x.v[+b.dataset.v])}};
+$("search").oninput=renderItems;
+$("cart").onclick=e=>{let b=e.target.closest("[data-q]");if(!b)return;let x=cart.find(i=>i.key===b.dataset.k);if(!x)return;if(b.dataset.q==="p")x.qty++;if(b.dataset.q==="m")x.qty--;if(b.dataset.q==="x")x.qty=0;cart=cart.filter(i=>i.qty>0);renderCart()};
+$("clear").onclick=()=>{cart=[];renderCart()};
+$("type").onchange=()=>{curFee=null;$("posZone").value="";renderCart()};
+$("discount").oninput=renderCart;
+$("finish").onclick=finishSale;
+$("modalCancel").onclick=()=>$("modal").classList.remove("show");
+$("modalOK").onclick=()=>{let f=modalAction;$("modal").classList.remove("show");if(f)f()};
+$("resetDemoBtn").onclick=()=>askShiftPass(()=>{state=seedDemo();syncNo();persistState();dbReq("orders","readwrite",s=>{s.clear();state.orders.forEach(o=>s.put(o))}).catch(()=>{});renderTracker();renderShifts();toast("تمت إعادة ضبط النسخة التجريبية")});
+
+syncDriversSelect();
+/* ====== الطباعة ====== */
+const STATION={"البيتزا":"البيتزا","فطير حادق":"الفطاير","فطير حلو":"الفطاير","الكريب":"الكريب","سندوتشات فحم":"السندوتشات","الماريا":"السندوتشات","البرجر":"السندوتشات","حواوشي":"السندوتشات","وجبات الشاورما العربي":"السندوتشات","الشاورما بالوزن":"السندوتشات","الغربي - سوري وفرنساوي":"السندوتشات","وجبات الغربي":"السندوتشات","المشويات":"الجريل","وجبات شواية":"الجريل","الفتة":"المطبخ","الطواجن":"المطبخ","المقبلات الباردة":"المقبلات","المقبلات الساخنة":"المقبلات"};
+function itemCat(i){if(i.c)return i.c;let m=MENU.find(x=>i.name===x.n||i.name.startsWith(x.n+" — "));return m?m.c:""}
+function stationOf(i){return STATION[itemCat(i)]||"المطبخ"}
+const FDT=new Intl.DateTimeFormat("ar-EG",{hour:"2-digit",minute:"2-digit",day:"numeric",month:"numeric"});
+const fdt=d=>FDT.format(new Date(d));
+function receiptHTML(o){
+  let rows=o.items.map(i=>`<tr><td>${i.qty}×</td><td>${esc(i.name)}</td><td>${i.price*i.qty}</td></tr>`).join("");
+  let sub=o.sub??o.items.reduce((a,i)=>a+i.price*i.qty,0);
+  let addr=o.address?((o.zoneName?o.zoneName+" - ":"")+o.address):"";
+  return `<div class="tk"><div class="tc big">ROSTO FIRE</div><div class="tc">روستو منور بأهله</div><hr>
+  <div>فاتورة #${o.no} · ${esc(o.type)}</div><div>${fdt(o.date)}</div>
+  ${o.customer?`<div>العميل: ${esc(o.customer)}</div>`:""}${o.phone?`<div>تليفون: ${esc(o.phone)}</div>`:""}${addr?`<div>العنوان: ${esc(addr)}</div>`:""}<hr>
+  <table>${rows}</table><hr>
+  <div class="rw"><span>المجموع</span><span>${sub}</span></div>
+  ${o.fee?`<div class="rw"><span>التوصيل</span><span>${o.fee}</span></div>`:""}
+  ${o.disc?`<div class="rw"><span>خصم</span><span>-${o.disc}</span></div>`:""}
+  <div class="rw big"><span>الإجمالي</span><span>${o.total} ج.م</span></div>
+  <div>الدفع: ${esc(o.payment)}</div>${o.notes?`<div>ملاحظات: ${esc(o.notes)}</div>`:""}<hr><div class="tc">شكراً لزيارتكم</div></div>`;
+}
+function ticketHTML(o,title,items,extra){
+  const lines=a=>a.map(i=>`<div class="kit">${i.qty} × ${esc(i.name)}</div>`).join("");
+  return `<div class="tk"><div class="tc big">${esc(title)}</div><hr>
+  <div class="rw big"><span>#${o.no}</span><span>${esc(o.type)}</span></div><div>${fdt(o.date)}</div><hr>
+  ${lines(items)}${extra?`<hr><div class="tc">— مقبلات —</div>${lines(extra)}`:""}
+  ${o.notes?`<hr><div class="note">⚠ ${esc(o.notes)}</div>`:""}</div>`;
+}
+/* المقبلات: لو الأوردر قسم واحد بس تتطبع معاه في نفس الورقة، ولو أكتر من قسم تتطبع في ورقة لوحدها */
+function kitchenList(o){
+  let g={};
+  o.items.forEach(i=>{let k=stationOf(i);(g[k]=g[k]||[]).push(i)});
+  let apps=g["المقبلات"],names=Object.keys(g).filter(k=>k!=="المقبلات");
+  if(!names.length)return [ticketHTML(o,"المقبلات",apps)];
+  if(apps&&names.length===1)return [ticketHTML(o,names[0]+" + مقبلات",g[names[0]],apps)];
+  let h=names.map(k=>ticketHTML(o,k,g[k]));
+  if(apps)h.push(ticketHTML(o,"المقبلات",apps));
+  return h;
+}
+function kitchenHTML(o){return kitchenList(o).join("")}
+function printOrder(o){
+  let h=(S.printReceipt!==false?receiptHTML(o):"")+(S.printKitchen!==false?kitchenHTML(o):"");
+  if(!h)return;
+  $("printArea").innerHTML=h;
+  schedulePrint();
+}
+$("optReceipt").onchange=()=>{S.printReceipt=$("optReceipt").checked;saveSet()};
+$("optKitchen").onchange=()=>{S.printKitchen=$("optKitchen").checked;saveSet()};
+function sampleOrder(){return{id:"RF-SAMPLE",no:57,date:new Date().toISOString(),type:"دليفري",payment:"كاش",customer:"محمد أحمد",phone:"01012345678",zoneName:"ميت غمر",address:"شارع النصر - عمارة 14 - الدور 3",notes:"بدون بصل",items:[{name:"بيتزا ميكس جبن — كبير",price:135,qty:1,c:"البيتزا"},{name:"سندوتش كفتة",price:80,qty:2,c:"سندوتشات فحم"},{name:"فطيرة نوتيلا",price:80,qty:1,c:"فطير حلو"},{name:"طحينة — صغير",price:10,qty:2,c:"المقبلات الباردة"}],sub:395,fee:30,disc:0,total:425,status:"prep"}}
+let pvOrder=null;
+function showPreview(o){
+  pvOrder=o;
+  $("pvBody").innerHTML='<div class="pvp"><div class="cap">🧾 فاتورة العميل</div>'+receiptHTML(o)+'</div>'+kitchenList(o).map(t=>'<div class="pvp"><div class="cap">👨‍🍳 تذكرة المطبخ</div>'+t+'</div>').join("");
+  $("pvBg").classList.add("show");
+}
+$("pvClose").onclick=()=>$("pvBg").classList.remove("show");
+$("pvPrint").onclick=()=>{if(pvOrder)printOrder(pvOrder)};
+$("testPrintBtn").onclick=()=>showPreview(sampleOrder());
+$("invoiceRows").onclick=e=>{let b=e.target.closest("[data-reprint]");if(!b)return;let o=state.orders.find(x=>x.id===b.dataset.reprint);if(o)printOrder(o)};
+
+/* ====== تشغيل النظام وتحميل البيانات من IndexedDB (مع ترحيل بيانات localStorage القديمة) ====== */
+async function boot(){
+  try{
+    await dbOpen();
+    let g=k=>dbReq("kv","readonly",s=>s.get(k));
+    let m=await g("menu"),z=await g("zones"),d=await g("drivers"),st=await g("settings"),sv=await g("state");
+    if(m)MENU=m;else dbPut("menu",MENU);
+    if(z)ZONES=z;else dbPut("zones",ZONES);
+    if(d)DRIVERS=d;else dbPut("drivers",DRIVERS);
+    if(st)S=Object.assign(S,st);else dbPut("settings",S);
+    DIRH=(await g("dirHandle"))||null;
+    if(sv){
+      let ords=await dbReq("orders","readonly",s=>s.getAll());
+      state=Object.assign({shift:null,shifts:[],customers:[]},sv,{orders:ords.sort((a,b)=>a.no-b.no)});
+    }else{persistState();state.orders.forEach(dbSaveOrder)}
+    syncNo();
+  }catch(e){
+    DBH=null;DBERR=(e&&(e.name||e.message))||"unsupported";
+    try{
+      let f=k=>{let v=localStorage.getItem("rf_fb_"+k);return v?JSON.parse(v):null};
+      let m=f("menu"),z=f("zones"),d=f("drivers"),st=f("settings"),sv=f("state"),ords=f("orders");
+      if(m)MENU=m;if(z)ZONES=z;if(d)DRIVERS=d;if(st)S=Object.assign(S,st);
+      if(sv)state=Object.assign({shift:null,shifts:[],customers:[]},sv,{orders:ords||[]});
+    }catch{}
+    toast("⚠️ قاعدة البيانات مش شغالة هنا ("+DBERR+") · شغّال بتخزين مؤقت محدود");
+  }
+  syncNo();
+  initDrawerUI();
+  if("shiftPass" in S){delete S.shiftPass;saveSet()}
+  updateFolderPill();
+  $("optReceipt").checked=S.printReceipt!==false;
+  $("optKitchen").checked=S.printKitchen!==false;
+  syncDriversSelect();syncPosZones();renderCats();renderItems();renderCart();renderTracker();renderShifts();
+  enableStorageProtection(false);
+  if(!DBH)setTimeout(()=>{$("persistPill").textContent="⚠️ تخزين مؤقت ("+DBERR+")"},600);
+}
+/* ====== كلمة المرور (متخزنة مشفرة SHA-256 مش مكتوبة) ====== */
+const DEFAULT_PASS_HASH="3d96892a32282daaac98365954b27a1482a5e2dc95025bddc6de0647a726b8f6";
+async function sha(t){let b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("rosto|"+t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+async function passOK(t){
+  try{
+    let ok=(await sha(t))===(S.passHash||DEFAULT_PASS_HASH);
+    if(!ok)toast("❌ الباسوورد غلط");
+    return ok;
+  }catch{toast("⚠️ المتصفح مش بيدعم التشفير هنا، افتح النظام من لينك https");return false}
+}
+$("changePassBtn").onclick=()=>openModal("🔑 تغيير كلمة المرور",`
+  <label class="field">كلمة المرور القديمة<input id="cpOld" type="password"></label>
+  <label class="field">كلمة المرور الجديدة (4 أرقام/حروف على الأقل)<input id="cpNew" type="password"></label>
+  <label class="field">تأكيد كلمة المرور الجديدة<input id="cpNew2" type="password"></label>
+`,async()=>{
+  let o=$("cpOld").value.trim(),n=$("cpNew").value.trim(),n2=$("cpNew2").value.trim();
+  if(!(await passOK(o)))return;
+  if(n.length<4){toast("كلمة المرور الجديدة قصيرة");return}
+  if(n!==n2){toast("التأكيد مش مطابق للكلمة الجديدة");return}
+  S.passHash=await sha(n);saveSet();
+  toast("✅ تم تغيير كلمة المرور");
+});
+
+/* ====== الحفظ في فولدر على الجهاز (Rosto) ====== */
+let DIRH=null;
+async function writeFile(dir,name,text){let f=await dir.getFileHandle(name,{create:true});let w=await f.createWritable();await w.write(text);await w.close()}
+async function updateFolderPill(){
+  let t="📁 الحفظ في فولدر: غير محدد";
+  if(DIRH){let ok=false;try{ok=(await DIRH.queryPermission({mode:"readwrite"}))==="granted"}catch{}
+    t="📁 "+DIRH.name+(ok?" (جاهز)":" (هيطلب تصريح عند الحفظ)")}
+  $("folderPill").textContent=t;
+}
+async function pickBackupDir(){
+  if(!window.showDirectoryPicker){toast("اختيار الفولدر محتاج كروم أو إيدج على الكمبيوتر، وصفحة مفتوحة مباشرة مش جوه إطار");return}
+  try{
+    let h=await showDirectoryPicker({id:"rosto",mode:"readwrite"});
+    await writeFile(h,"_rosto_test.txt","ok");
+    DIRH=h;dbPut("dirHandle",h);updateFolderPill();toast("✅ تم اختيار الفولدر: "+h.name);
+  }catch(e){if(!e||e.name!=="AbortError")toast("⚠️ مقدرتش أكتب في الفولدر ده، اعمل فولدر جديد (مثلاً D:/Rosto) واختاره")}
+}
+function ordersCSV(orders){
+  const c=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+  let head=["رقم","التاريخ والوقت","النوع","الدفع","العميل","التليفون","المنطقة","العنوان","السائق","الأصناف","المجموع","التوصيل","الخصم","الإجمالي","الحالة"];
+  let rows=orders.map(o=>[o.no,new Date(o.date).toLocaleString("en-GB"),o.type,o.payment,o.customer,o.phone,o.zoneName,o.address,driverName(o.driver),o.items.map(i=>i.qty+"x "+i.name).join(" | "),o.sub,o.fee,o.disc,o.total,o.status==="done"?"تم":o.status==="delivery"?"تحت التوصيل":"تحت التجهيز"]);
+  return[head,...rows].map(r=>r.map(c).join(",")).join("\r\n");
+}
+async function saveShiftToFolder(shift,orders){
+  if(!DIRH){toast("📁 لسه ما اخترتش فولدر الحفظ (من تبويب الشفتات)");return false}
+  try{
+    let o={mode:"readwrite"};
+    if((await DIRH.queryPermission(o))!=="granted"&&(await DIRH.requestPermission(o))!=="granted"){toast("⚠️ لازم تسمح للمتصفح بالكتابة في الفولدر");return false}
+    let d=new Date(shift.start),y=String(d.getFullYear()),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
+    let yd=await DIRH.getDirectoryHandle(y,{create:true}),md=await yd.getDirectoryHandle(m,{create:true});
+    let base=y+"-"+m+"-"+day+"_"+shift.id;
+    await writeFile(md,base+".json",JSON.stringify({shift,orders},null,1));
+    await writeFile(md,base+".csv","\ufeff"+ordersCSV(orders));
+    await writeFile(DIRH,"config.json",JSON.stringify({date:new Date().toISOString(),MENU,ZONES,DRIVERS,customers:state.customers},null,1));
+    updateFolderPill();
+    return true;
+  }catch{toast("⚠️ فشل الحفظ في الفولدر");return false}
+}
+$("pickFolderBtn").onclick=pickBackupDir;
+$("saveFolderNowBtn").onclick=async()=>{
+  let sh=state.shift||state.shifts[0];
+  if(!sh){toast("مفيش شفت للحفظ");return}
+  if(await saveShiftToFolder(sh,state.orders.filter(o=>o.shiftId===sh.id)))toast("✅ اتحفظ الشفت في الفولدر");
+};
+
+/* ====== درج الفلوس ====== */
+function schedulePrint(){
+  let done=false,go=()=>{if(done)return;done=true;try{window.print()}catch{toast("الطباعة غير متاحة هنا")}};
+  requestAnimationFrame(()=>setTimeout(go,0));setTimeout(go,120);
+}
+function printSlip(title,o){
+  $("printArea").innerHTML=`<div class="tk"><div class="tc big">${esc(title)}</div><hr>
+  ${o?`<div class="rw big"><span>#${o.no}</span><span>${o.total} ج.م</span></div>${o.driver?`<div>السائق: ${esc(driverName(o.driver))}</div>`:""}${o.customer?`<div>العميل: ${esc(o.customer)}</div>`:""}`:""}
+  <div>${fdt(Date.now())}</div></div>`;
+  schedulePrint();
+}
+const KICK=new Uint8Array([0x1B,0x70,0x00,0x19,0xFA]);
+async function rawKick(){
+  let m=S.drawerMode;
+  try{
+    if(m==="serial"){
+      if(!navigator.serial){toast("المتصفح ده مش بيدعم COM، استخدم كروم أو إيدج");return false}
+      let ps=await navigator.serial.getPorts();
+      if(!ps.length){toast("اربط الدرج الأول من زرار 🔌 ربط الجهاز");return false}
+      let pt=ps[0];await pt.open({baudRate:+S.drawerBaud||9600});
+      try{let w=pt.writable.getWriter();await w.write(KICK);w.releaseLock()}finally{try{await pt.close()}catch{}}
+      return true;
+    }
+    if(m==="usb"){
+      if(!navigator.usb){toast("المتصفح ده مش بيدعم USB المباشر");return false}
+      let devs=await navigator.usb.getDevices();
+      if(!devs.length){toast("اربط الطابعة الأول من زرار 🔌 ربط الجهاز");return false}
+      let dev=devs[0];await dev.open();
+      try{
+        if(!dev.configuration)await dev.selectConfiguration(1);
+        for(let itf of dev.configuration.interfaces){
+          let alt=itf.alternates.find(a=>a.endpoints.some(e=>e.direction==="out"));if(!alt)continue;
+          let ep=alt.endpoints.find(e=>e.direction==="out");
+          if(!itf.claimed)await dev.claimInterface(itf.interfaceNumber);
+          await dev.transferOut(ep.endpointNumber,KICK);
+          try{await dev.releaseInterface(itf.interfaceNumber)}catch{}
+          return true;
+        }
+      }finally{try{await dev.close()}catch{}}
+    }
+  }catch(e){toast("⚠️ فشل فتح الدرج: "+((e&&(e.name||e.message))||"خطأ"))}
+  return false;
+}
+let DQ=Promise.resolve();
+function kickDrawer(why,o){
+  let m=S.drawerMode||"driver";
+  if(m==="off")return;
+  if(m==="driver"){
+    if(why==="collect"&&o)printSlip("تحصيل دليفري",o);
+    else if(why==="test")printSlip("تجربة فتح الدرج",null);
+    return;
+  }
+  DQ=DQ.then(rawKick).then(ok=>{if(why==="test")toast(ok?"✅ اتبعت أمر فتح الدرج":"⚠️ الدرج ما اتفتحش، راجع الربط")}).catch(()=>{});
+}
+function initDrawerUI(){
+  $("drawerMode").value=S.drawerMode||"driver";
+  $("drawerBaud").value=String(S.drawerBaud||9600);
+  $("drwSale").checked=S.drwSale!==false;
+  $("drwCollect").checked=S.drwCollect!==false;
+}
+$("drawerMode").onchange=()=>{S.drawerMode=$("drawerMode").value;saveSet()};
+$("drawerBaud").onchange=()=>{S.drawerBaud=+$("drawerBaud").value;saveSet()};
+$("drwSale").onchange=()=>{S.drwSale=$("drwSale").checked;saveSet()};
+$("drwCollect").onchange=()=>{S.drwCollect=$("drwCollect").checked;saveSet()};
+$("testDrawerBtn").onclick=()=>kickDrawer("test");
+$("pairDrawerBtn").onclick=async()=>{
+  let m=$("drawerMode").value;
+  try{
+    if(m==="serial"){if(!navigator.serial){toast("المتصفح ده مش بيدعم COM");return}await navigator.serial.requestPort();toast("✅ تم ربط منفذ COM")}
+    else if(m==="usb"){if(!navigator.usb){toast("المتصفح ده مش بيدعم USB المباشر");return}await navigator.usb.requestDevice({filters:[]});toast("✅ تم ربط جهاز USB")}
+    else toast("الوضع ده مش محتاج ربط")
+  }catch(e){if(!e||e.name!=="NotFoundError")toast("⚠️ "+((e&&(e.name||e.message))||"خطأ"))}
+};
+
+boot();
+syncPosZones();
+renderCats();renderItems();renderCart();renderTracker();
+</script></body></html>
