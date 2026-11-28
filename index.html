@@ -103,6 +103,14 @@ th{background:#272c33;color:#f4d36b;position:sticky;top:0}
 .modal h3{margin:0 0 12px}.modalactions{display:flex;gap:8px;margin-top:13px}.modalactions>*{flex:1}
 .modal input,.modal select,.modal textarea{width:100%;padding:10px;background:#0c0e11;border:1px solid #555e68;color:white;border-radius:8px}
 .footnote{font-size:11px;color:#9ca5b0;line-height:1.7}
+.employee-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.employee-week{display:flex;gap:7px;align-items:center;color:#cbd0d7;font-size:12px}
+.employee-week input{background:#0c0e11;border:1px solid #48505a;color:white;border-radius:8px;padding:8px}
+.employee-actions{display:flex;gap:5px;flex-wrap:wrap}
+.employee-actions button{padding:7px 9px;font-size:11px}
+.employee-status{font-weight:700;white-space:nowrap}
+.employee-status.working{color:var(--green)}
+.employee-status.off{color:#aeb6c1}
 @media(max-width:920px){.layout{grid-template-columns:1fr}.board{grid-template-columns:1fr}.cart{position:static;max-height:none}.cardgrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.items{grid-template-columns:repeat(2,minmax(0,1fr))}.fields{grid-template-columns:1fr 1fr}}
 
@@ -163,6 +171,7 @@ body>*:not(#printArea){display:none!important}
   <button class="tab" data-view="menuMgr">🍔 المنيو والعروض</button>
   <button class="tab" data-view="zonesMgr">📍 مناطق التوصيل</button>
   <button class="tab" data-view="driversMgr">🛵 إدارة السائقين</button>
+  <button class="tab" data-view="employees">👥 الموظفين</button>
   <button class="tab" data-view="shifts">🔒 الشفتات والإغلاق</button>
   <button class="tab" data-view="reports">📊 التقارير</button>
   <button class="tab" data-view="customers">👥 العملاء</button>
@@ -288,6 +297,41 @@ body>*:not(#printArea){display:none!important}
         <table>
           <thead><tr><th>اسم السائق</th><th>الكود</th><th>إجراءات</th></tr></thead>
           <tbody id="driversRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-employees">
+    <div class="panel section">
+      <div class="heading">
+        <div><h2>حضور الموظفين والحساب الأسبوعي</h2><p>سجّل الدخول والخروج، الأجر بالساعة، والسلف لكل موظف</p></div>
+        <button class="primary" id="addEmployeeBtn">➕ إضافة موظف</button>
+      </div>
+      <div class="employee-controls">
+        <label class="employee-week">الأسبوع الذي يحتوي على التاريخ <input type="date" id="employeeWeekDate"></label>
+        <span class="pill" id="employeeWeekLabel"></span>
+      </div>
+      <div class="cardgrid">
+        <div class="metric"><span>إجمالي ساعات الأسبوع</span><strong id="employeeWeekHours">0</strong></div>
+        <div class="metric"><span>الأجر المستحق</span><strong id="employeeWeekPay">0 ج.م</strong></div>
+        <div class="metric"><span>السلف</span><strong id="employeeWeekAdvances">0 ج.م</strong></div>
+        <div class="metric"><span>المتبقي بعد السلف</span><strong id="employeeWeekNet">0 ج.م</strong></div>
+      </div>
+      <h3>الموظفون</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>الاسم</th><th>الوظيفة</th><th>أجر الساعة</th><th>الحالة</th><th>آخر دخول</th><th>ساعات الأسبوع</th><th>الأجر</th><th>السلف</th><th>المتبقي</th><th>إجراءات</th></tr></thead>
+          <tbody id="employeeRows"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel section">
+      <h3>تفاصيل الدوام والسلف للأسبوع</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>الموظف</th><th>النوع</th><th>وقت الدخول / التسجيل</th><th>وقت الخروج</th><th>الساعات</th><th>المبلغ</th><th>التفاصيل</th></tr></thead>
+          <tbody id="employeeActivityRows"></tbody>
         </table>
       </div>
     </div>
@@ -589,7 +633,7 @@ let state=(()=>{
   return emptyState();
 })();
 
-function emptyState(){return{shift:null,shifts:[],customers:[],orders:[]}}
+function emptyState(){return{shift:null,shifts:[],customers:[],orders:[],employees:[],employeeShifts:[],advances:[]}}
 function isStarterDemoOrder(o){
   const examples={
     "RF-1001":{no:1,customer:"محمود عبد الله",total:340,items:[["نصف فرخة",150,1],["بيتزا روستو — كبير",170,1]]},
@@ -638,6 +682,11 @@ async function archiveStarterDemoData(){
   return true;
 }
 
+function normalizeEmployeeState(){
+  if(!Array.isArray(state.employees))state.employees=[];
+  if(!Array.isArray(state.employeeShifts))state.employeeShifts=[];
+  if(!Array.isArray(state.advances))state.advances=[];
+}
 async function persistState(){
   try{
     let {orders:_o,...rest}=state;
@@ -1088,6 +1137,133 @@ $("driversRows").onclick=async e=>{
   else if(b.dataset.dd!=null){let previous=DRIVERS.slice();DRIVERS.splice(+b.dataset.dd,1);if(!await saveDrivers()){DRIVERS=previous;syncDriversSelect();renderDriversMgr();return}syncDriversSelect();renderDriversMgr();renderTracker();toast("تم حذف السائق")}
 };
 
+function employeeWeekBounds(){
+  let chosen=$("employeeWeekDate").value?new Date($("employeeWeekDate").value+"T12:00:00"):new Date();
+  let start=new Date(chosen.getFullYear(),chosen.getMonth(),chosen.getDate());
+  start.setDate(start.getDate()-((start.getDay()+1)%7));
+  let end=new Date(start);end.setDate(end.getDate()+7);
+  return{start,end,startMs:start.getTime(),endMs:end.getTime()};
+}
+function weekDateLabel(date){return date.toLocaleDateString("ar-EG",{day:"numeric",month:"short",year:"numeric"})}
+function employeeSessionStats(session,bounds){
+  let clockIn=new Date(session.clockIn).getTime();
+  let clockOut=session.clockOut?new Date(session.clockOut).getTime():Date.now();
+  let elapsed=Math.max(0,Math.min(clockOut,bounds.endMs)-Math.max(clockIn,bounds.startMs));
+  let hours=elapsed/3600000;
+  return{hours,pay:hours*(Number(session.hourlyRate)||0)};
+}
+function employeeAdvanceTotal(employeeId,bounds){
+  return state.advances.filter(a=>a.employeeId===employeeId&&new Date(a.date).getTime()>=bounds.startMs&&new Date(a.date).getTime()<bounds.endMs)
+    .reduce((sum,a)=>sum+(Number(a.amount)||0),0);
+}
+function employeeWeekStats(employeeId,bounds){
+  let sessions=state.employeeShifts.filter(s=>s.employeeId===employeeId);
+  let totals=sessions.reduce((sum,s)=>{let part=employeeSessionStats(s,bounds);sum.hours+=part.hours;sum.pay+=part.pay;return sum},{hours:0,pay:0});
+  totals.advances=employeeAdvanceTotal(employeeId,bounds);
+  totals.net=totals.pay-totals.advances;
+  return totals;
+}
+function employeeTime(value){return value?new Date(value).toLocaleString("ar-EG",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"—"}
+function employeeHours(value){return Number(value||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function renderEmployees(){
+  if(!$ ("employeeWeekDate").value){let now=new Date();$("employeeWeekDate").value=[now.getFullYear(),String(now.getMonth()+1).padStart(2,"0"),String(now.getDate()).padStart(2,"0")].join("-")}
+  let bounds=employeeWeekBounds();
+  $("employeeWeekLabel").textContent=weekDateLabel(bounds.start)+" - "+weekDateLabel(new Date(bounds.endMs-1));
+  let totals=state.employees.reduce((sum,emp)=>{let stats=employeeWeekStats(emp.id,bounds);sum.hours+=stats.hours;sum.pay+=stats.pay;sum.advances+=stats.advances;return sum},{hours:0,pay:0,advances:0});
+  $("employeeWeekHours").textContent=employeeHours(totals.hours)+" ساعة";
+  $("employeeWeekPay").textContent=money(totals.pay);
+  $("employeeWeekAdvances").textContent=money(totals.advances);
+  $("employeeWeekNet").textContent=money(totals.pay-totals.advances);
+  $("employeeRows").innerHTML=state.employees.map(emp=>{
+    let activeShift=state.employeeShifts.find(s=>s.employeeId===emp.id&&!s.clockOut);
+    let lastShift=state.employeeShifts.filter(s=>s.employeeId===emp.id).sort((a,b)=>new Date(b.clockIn)-new Date(a.clockIn))[0];
+    let stats=employeeWeekStats(emp.id,bounds);
+    return `<tr>
+      <td><b>${esc(emp.name)}</b></td><td>${esc(emp.role||"—")}</td><td>${money(emp.hourlyRate)} / ساعة</td>
+      <td class="employee-status ${activeShift?"working":"off"}">${activeShift?"على رأس العمل":emp.active===false?"غير نشط":"خارج العمل"}</td>
+      <td>${lastShift?employeeTime(lastShift.clockIn):"—"}</td><td>${employeeHours(stats.hours)}</td>
+      <td>${money(stats.pay)}</td><td>${money(stats.advances)}</td><td><b>${money(stats.net)}</b></td>
+      <td><div class="employee-actions">
+        <button class="${activeShift?"danger":"success"}" data-employee-action="clock" data-employee-id="${esc(emp.id)}" ${!activeShift&&emp.active===false?"disabled":""}>${activeShift?"تسجيل خروج":"تسجيل دخول"}</button>
+        <button class="secondary" data-employee-action="advance" data-employee-id="${esc(emp.id)}">سلفة</button>
+        <button class="secondary" data-employee-action="edit" data-employee-id="${esc(emp.id)}">تعديل</button>
+      </div></td>
+    </tr>`;
+  }).join("")||'<tr><td colspan="10">أضف الموظفين لبدء تسجيل الحضور والحساب الأسبوعي</td></tr>';
+  let activity=[];
+  state.employeeShifts.forEach(session=>{
+    let part=employeeSessionStats(session,bounds);
+    if(part.hours<=0)return;
+    let emp=state.employees.find(x=>x.id===session.employeeId);
+    activity.push({date:session.clockIn,html:`<tr><td>${esc(emp?.name||"موظف محذوف")}</td><td>دوام</td><td>${employeeTime(session.clockIn)}</td><td>${session.clockOut?employeeTime(session.clockOut):"مستمر الآن"}</td><td>${employeeHours(part.hours)}</td><td>${money(part.pay)}</td><td>أجر الساعة وقت الدخول: ${money(session.hourlyRate)}</td></tr>`});
+  });
+  state.advances.forEach(advance=>{
+    let time=new Date(advance.date).getTime();
+    if(time<bounds.startMs||time>=bounds.endMs)return;
+    let emp=state.employees.find(x=>x.id===advance.employeeId);
+    activity.push({date:advance.date,html:`<tr><td>${esc(emp?.name||"موظف محذوف")}</td><td style="color:#fca5a5">سلفة</td><td>${employeeTime(advance.date)}</td><td>—</td><td>—</td><td>${money(-advance.amount)}</td><td>${esc(advance.note||"—")}</td></tr>`});
+  });
+  activity.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  $("employeeActivityRows").innerHTML=activity.map(x=>x.html).join("")||'<tr><td colspan="7">لا توجد حركات في هذا الأسبوع</td></tr>';
+}
+function employeeModal(employeeId){
+  let original=state.employees.find(x=>x.id===employeeId),isNew=!original;
+  let emp=original||{name:"",role:"كاشير",hourlyRate:20,active:true};
+  openModal(isNew?"إضافة موظف جديد":"تعديل بيانات الموظف",`
+    <label class="field">اسم الموظف<input id="employeeName" maxlength="80" value="${esc(emp.name)}" placeholder="مثال: محمد أحمد"></label>
+    <label class="field">الوظيفة<input id="employeeRole" maxlength="60" value="${esc(emp.role||"")}" placeholder="كاشير / دليفري / شيف"></label>
+    <label class="field">أجر الساعة (ج.م)<input id="employeeRate" type="number" min="0" step="0.01" value="${Number(emp.hourlyRate)||0}"></label>
+    <label class="field">الحالة<select id="employeeActive"><option value="true" ${emp.active!==false?"selected":""}>نشط</option><option value="false" ${emp.active===false?"selected":""}>غير نشط</option></select></label>
+  `,async()=>{
+    let name=$("employeeName").value.trim(),role=$("employeeRole").value.trim(),hourlyRate=Number($("employeeRate").value),active=$("employeeActive").value==="true";
+    if(!name||!role||!Number.isFinite(hourlyRate)||hourlyRate<0){toast("راجع الاسم والوظيفة وأجر الساعة");return}
+    if(state.employees.some(x=>x.id!==employeeId&&x.name.toLocaleLowerCase()===name.toLocaleLowerCase())){toast("اسم الموظف مسجل بالفعل");return}
+    if(original&&state.employeeShifts.some(s=>s.employeeId===employeeId&&!s.clockOut)&&!active){toast("سجّل خروج الموظف قبل إيقافه");return}
+    let previous=state.employees.map(x=>({...x}));
+    if(isNew)state.employees.push({id:"EMP-"+Date.now(),name,role,hourlyRate,active});
+    else Object.assign(original,{name,role,hourlyRate,active});
+    if(!await persistState()){state.employees=previous;renderEmployees();return}
+    renderEmployees();toast(isNew?"تمت إضافة الموظف ✅":"تم حفظ بيانات الموظف ✅");
+  });
+}
+function employeeAdvanceModal(employee){
+  openModal("تسجيل سلفة لـ "+employee.name,`
+    <label class="field">مبلغ السلفة (ج.م)<input id="employeeAdvanceAmount" type="number" min="0.01" step="0.01" placeholder="مثال: 200"></label>
+    <label class="field">ملاحظة<input id="employeeAdvanceNote" maxlength="120" placeholder="اختياري"></label>
+  `,async()=>{
+    let amount=Number($("employeeAdvanceAmount").value),note=$("employeeAdvanceNote").value.trim();
+    if(!Number.isFinite(amount)||amount<=0){toast("اكتب مبلغ سلفة صحيح");return}
+    let advance={id:"ADV-"+Date.now(),employeeId:employee.id,amount,date:new Date().toISOString(),note};
+    state.advances.push(advance);
+    if(!await persistState()){state.advances=state.advances.filter(x=>x!==advance);renderEmployees();return}
+    renderEmployees();toast("تم تسجيل السلفة وخصمها من حساب الأسبوع ✅");
+  });
+}
+$("addEmployeeBtn").onclick=()=>employeeModal(null);
+$("employeeWeekDate").onchange=renderEmployees;
+$("employeeRows").onclick=async e=>{
+  let button=e.target.closest("button[data-employee-action]");if(!button)return;
+  let employee=state.employees.find(x=>x.id===button.dataset.employeeId);if(!employee)return;
+  if(button.dataset.employeeAction==="edit"){employeeModal(employee.id);return}
+  if(button.dataset.employeeAction==="advance"){employeeAdvanceModal(employee);return}
+  if(button.dataset.employeeAction==="clock"){
+    let openShift=state.employeeShifts.find(x=>x.employeeId===employee.id&&!x.clockOut);
+    if(!openShift&&employee.active===false)return;
+    if(openShift){
+      let previous=openShift.clockOut;openShift.clockOut=new Date().toISOString();
+      if(!await persistState()){openShift.clockOut=previous;renderEmployees();return}
+      toast("تم تسجيل خروج "+employee.name+" ✅");
+    }else{
+      let session={id:"ATT-"+Date.now(),employeeId:employee.id,clockIn:new Date().toISOString(),clockOut:null,hourlyRate:Number(employee.hourlyRate)||0};
+      state.employeeShifts.push(session);
+      if(!await persistState()){state.employeeShifts=state.employeeShifts.filter(x=>x!==session);renderEmployees();return}
+      toast("تم تسجيل دخول "+employee.name+" ✅");
+    }
+    renderEmployees();
+  }
+};
+setInterval(()=>{if($("view-employees").classList.contains("active"))renderEmployees()},60000);
+
 function renderShifts(){
   let cur=state.shift?state.orders.filter(o=>o.shiftId===state.shift.id):[];
   $("shiftStatus").textContent=state.shift?"الشفت: مفتوح":"الشفت: مغلق";
@@ -1159,6 +1335,9 @@ $("importDataInp").onchange=async e=>{
       shift:state.shift||d.state.shift||null,
       shifts:mergeBy(state.shifts||[],d.state.shifts||[],x=>x.id),
       customers:mergeBy(state.customers||[],d.state.customers||[],x=>x.phone),
+        employees:mergeBy(state.employees||[],d.state.employees||[],x=>x.id),
+        employeeShifts:mergeBy(state.employeeShifts||[],d.state.employeeShifts||[],x=>x.id),
+        advances:mergeBy(state.advances||[],d.state.advances||[],x=>x.id),
       orders:mergeBy(state.orders||[],d.state.orders,x=>x.id)
     };
     let orderIds=new Set((state.orders||[]).map(o=>o.id));
@@ -1234,6 +1413,7 @@ function switchView(v){
   if(v==="shifts")renderShifts();
   if(v==="reports")renderReports();
   if(v==="customers")renderCustomers();
+  if(v==="employees")renderEmployees();
 }
 
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
@@ -1320,6 +1500,7 @@ $("invoiceRows").onclick=e=>{let b=e.target.closest("[data-reprint]");if(!b)retu
 
 /* ====== تشغيل النظام وتحميل البيانات من IndexedDB (مع ترحيل بيانات localStorage القديمة) ====== */
 async function boot(){
+  normalizeEmployeeState();
   if(!await claimAppLock()){
     let supported=!!navigator.locks?.request;
     $("instanceLockTitle").textContent=supported?"النظام مفتوح في نافذة أخرى":"المتصفح لا يدعم حماية تعدد النوافذ";
@@ -1338,7 +1519,7 @@ async function boot(){
     DIRH=(await g("dirHandle"))||null;
     if(sv){
       let ords=await dbReq("orders","readonly",s=>s.getAll());
-      state=Object.assign({shift:null,shifts:[],customers:[]},sv,{orders:ords.sort((a,b)=>a.no-b.no)});
+      state=Object.assign({shift:null,shifts:[],customers:[],employees:[],employeeShifts:[],advances:[]},sv,{orders:ords.sort((a,b)=>a.no-b.no)});
     }else{persistState();state.orders.forEach(dbSaveOrder)}
     syncNo();
   }catch(e){
@@ -1347,10 +1528,11 @@ async function boot(){
       let f=k=>{let v=localStorage.getItem("rf_fb_"+k);return v?JSON.parse(v):null};
       let m=f("menu"),z=f("zones"),d=f("drivers"),st=f("settings"),sv=f("state"),ords=f("orders");
       if(m)MENU=m;if(z)ZONES=z;if(d)DRIVERS=d;if(st)S=Object.assign(S,st);
-      if(sv)state=Object.assign({shift:null,shifts:[],customers:[]},sv,{orders:ords||[]});
+      if(sv)state=Object.assign({shift:null,shifts:[],customers:[],employees:[],employeeShifts:[],advances:[]},sv,{orders:ords||[]});
     }catch{}
     toast("⚠️ قاعدة البيانات مش شغالة هنا ("+DBERR+") · شغّال بتخزين مؤقت محدود");
   }
+  normalizeEmployeeState();
   if(!await archiveStarterDemoData())toast("⚠️ تعذر أرشفة بيانات العرض؛ لم يتم حذفها");
   syncNo();
   normalizeCashierSettings();
